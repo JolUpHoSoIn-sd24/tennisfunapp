@@ -1,0 +1,76 @@
+# Miscellaneous
+*.class
+*.log
+*.pyc
+*.swp
+.DS_Store
+.atom/
+.buildlog/
+.history
+.svn/
+
+# Dart/Flutter
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+/build/
+
+# Android related
+android/.gradle
+android/captures/
+android/local.properties
+android/keystore.properties
+*.jks
+
+# iOS related
+ios/.generated/
+ios/Flutter/flutter_export_environment.sh
+ios/Flutter/Generated.xcconfig
+ios/Flutter/App.framework
+ios/Flutter/Flutter.framework
+ios/Flutter/Flutter.podspec
+ios/Pods/
+ios/Runner.xcworkspace
+
+# macOS related
+macos/Pods/
+macos/Flutter/ephemeral/
+macos/Flutter/.last_build_id
+macos/Flutter/Flutter.framework
+macos/Flutter/App.framework
+macos/Flutter/FlutterPluginRegistrant/
+
+# Web related
+/web:build/
+
+# IntelliJ related
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# VSCode related
+.vscode/
+
+# Packages
+*.pub
+lib/**/*.json
+
+# Build artifacts
+/ios/Flutter/App.framework
+/ios/Flutter/Flutter.framework
+
+# Others
+*.lock
+profile
+
+# Secret keys and credentials
+/secrets.json
+/key.properties
+
+# Local configuration files
+/local.yaml
+/local.properties
