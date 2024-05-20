@@ -17,13 +17,16 @@ class SignUpDoneScreen extends StatelessWidget {
             ),
             SizedBox(height: 20),
             Text(
-              'Your account has been successfully created.',
+              'Your account has been successfully created.\n이메일 인증 후 로그인해주세요.',
               style: TextStyle(fontSize: 16),
             ),
             SizedBox(height: 40),
             ElevatedButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text('Back to Home'),
+              onPressed: () => {
+                Navigator.pop(context),
+                Navigator.pop(context),
+              },
+              child: Text('Back to Login'),
             ),
           ],
         ),

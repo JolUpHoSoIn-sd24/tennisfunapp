@@ -1,20 +1,48 @@
 import 'package:flutter/material.dart';
-import 'screens/signup/sign_up_screen.dart';
-import 'screens/signup/sign_up_done_screen.dart'; // Assuming this exists
+import 'package:tennisfunapp/screens/home/home_screen.dart';
+import 'package:tennisfunapp/screens/login/login_screen.dart';
+import 'package:tennisfunapp/screens/signup/sign_up_done_screen.dart';
+import 'package:tennisfunapp/screens/signup/sign_up_screen.dart';
+import 'package:tennisfunapp/services/auth_service.dart';
 
 void main() {
   runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
+  final AuthService _authService = AuthService();
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Tennis Fun App',
-      initialRoute: '/',
+      // Remove initialRoute to use home property with FutureBuilder
+      home: FutureBuilder(
+        future: _authService.isUserLoggedIn(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.done) {
+            if (snapshot.hasData && snapshot.data == true) {
+              // User is logged in, send them to the home screen
+              return HomeScreen();
+            } else {
+              // User is not logged in, send them to the login screen
+              return LoginScreen();
+            }
+          } else {
+            // While checking the login state, show a loading spinner
+            return const Scaffold(
+              body: Center(
+                child: CircularProgressIndicator(),
+              ),
+            );
+          }
+        },
+      ),
       routes: {
-        '/': (context) => SignUpScreen(),
+        '/home': (context) => HomeScreen(),
         '/signupSuccess': (context) => SignUpDoneScreen(),
+        '/signup': (context) => SignUpScreen(),
+        '/login': (context) => LoginScreen(),
       },
     );
   }
