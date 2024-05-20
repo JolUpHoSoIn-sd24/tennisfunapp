@@ -6,11 +6,10 @@ class DatePickerField extends StatelessWidget {
   final DateTime initialDate;
   final ValueChanged<DateTime> onDateSelected;
 
-  DatePickerField({
-    required this.label,
-    required this.initialDate,
-    required this.onDateSelected,
-  });
+  DatePickerField(
+      {required this.label,
+      required this.initialDate,
+      required this.onDateSelected});
 
   @override
   Widget build(BuildContext context) {

@@ -5,11 +5,8 @@ class FormInputField extends StatelessWidget {
   final void Function(String?) onSave;
   final bool isPassword;
 
-  FormInputField({
-    required this.label,
-    required this.onSave,
-    this.isPassword = false,
-  });
+  FormInputField(
+      {required this.label, required this.onSave, this.isPassword = false});
 
   @override
   Widget build(BuildContext context) {
