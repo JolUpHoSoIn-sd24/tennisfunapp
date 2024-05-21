@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:tennisfunapp/screens/home/home_screen.dart';
 import 'package:tennisfunapp/screens/login/login_screen.dart';
+import 'package:tennisfunapp/screens/match/request_matching_page.dart';
 import 'package:tennisfunapp/screens/signup/sign_up_done_screen.dart';
 import 'package:tennisfunapp/screens/signup/sign_up_screen.dart';
 import 'package:tennisfunapp/services/auth_service.dart';
@@ -27,6 +28,7 @@ class MyApp extends StatelessWidget {
             } else {
               // User is not logged in, send them to the login screen
               return LoginScreen();
+              //return HomeScreen();
             }
           } else {
             // While checking the login state, show a loading spinner
@@ -43,6 +45,7 @@ class MyApp extends StatelessWidget {
         '/signupSuccess': (context) => SignUpDoneScreen(),
         '/signup': (context) => SignUpScreen(),
         '/login': (context) => LoginScreen(),
+        '/match-request': (context) => const RequestMatchingPage(),
       },
     );
   }

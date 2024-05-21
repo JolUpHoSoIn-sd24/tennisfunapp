@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_card_swiper/flutter_card_swiper.dart';
 import 'package:tennisfunapp/models/candidate_model.dart';
 import 'package:tennisfunapp/components/candidate_card.dart';
+import 'package:tennisfunapp/components/prompt_card.dart';
 
 class MatchInfoScreen extends StatefulWidget {
   const MatchInfoScreen({Key? key}) : super(key: key);
@@ -12,20 +13,51 @@ class MatchInfoScreen extends StatefulWidget {
 
 class _TennisMatchScreenState extends State<MatchInfoScreen> {
   final CardSwiperController controller = CardSwiperController();
+
   final List<CandidateModel> candidates = [
     CandidateModel(name: "John Doe", skillLevel: "Advanced"),
     CandidateModel(name: "Jane Smith", skillLevel: "Intermediate"),
     CandidateModel(name: "Richard Roe", skillLevel: "Beginner"),
-    // 추가 플레이어 정보를 여기에 넣어주세요.
   ];
-  late final List<Widget> cards;
+
+  final List<CandidateModel> prompt = [
+    CandidateModel(
+        name: "Ready for a match?",
+        skillLevel: "Tap below to find a partner!",
+        isPrompt: true),
+  ];
+
+  late List<Widget> cards;
 
   @override
   void initState() {
     super.initState();
-    cards = candidates
-        .map((candidate) => CandidateCard(candidate: candidate))
-        .toList();
+    // 여기에 조건을 추가하여 candidates 또는 prompt를 선택하도록 합니다.
+    bool isMatchRequestNeeded = true;
+    List<CandidateModel> selectedList =
+        isMatchRequestNeeded ? prompt : candidates;
+
+    // 리스트가 비어 있을 경우 기본 카드를 추가
+    if (selectedList.isEmpty) {
+      selectedList = [
+        CandidateModel(
+            name: "No candidates available",
+            skillLevel: "Please check back later!",
+            isPrompt: true),
+      ];
+    }
+
+    cards = selectedList.map((candidate) {
+      if (candidate.isPrompt) {
+        return PromptCard(
+            candidate: candidate,
+            onMatchRequest: () {
+              Navigator.pushNamed(context, '/match-request');
+            });
+      } else {
+        return CandidateCard(candidate: candidate);
+      }
+    }).toList();
   }
 
   @override
@@ -47,7 +79,7 @@ class _TennisMatchScreenState extends State<MatchInfoScreen> {
           cardBuilder: (context, index, _, __) {
             final screenWidth = MediaQuery.of(context).size.width;
             return Container(
-              width: screenWidth - 40, // 화면 너비에서 40px 감소 (좌우 20px씩)
+              width: screenWidth - 40,
               child: cards[index],
             );
           },
@@ -60,7 +92,7 @@ class _TennisMatchScreenState extends State<MatchInfoScreen> {
                 'Undo swipe on card $index, which was swiped $direction');
             return true;
           },
-          numberOfCardsDisplayed: 3,
+          numberOfCardsDisplayed: cards.length >= 3 ? 3 : cards.length,
           backCardOffset: const Offset(25, 0),
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 40),
           scale: 0.9,
