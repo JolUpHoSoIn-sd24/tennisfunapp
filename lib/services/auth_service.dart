@@ -4,7 +4,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthService {
   String _baseUrl = "http://localhost:8080";
-  String _sessionCookies = '';
 
   Future<Map<String, dynamic>> register({
     required String email,
@@ -39,19 +38,9 @@ class AuthService {
     print('Status Code: ${response.statusCode}');
     print('Response Body: ${response.body}');
 
-    if (response.statusCode == 201) {
-      try {
-        return json.decode(response.body);
-      } catch (e) {
-        print('JSON Decode Error: $e');
-        throw FormatException('Failed to decode response: $e');
-      }
-    } else {
-      return {'isSuccess': false, 'message': 'Failed to register'};
-    }
+    return json.decode(response.body);
   }
 
-  // Login method
   Future<Map<String, dynamic>> login({
     required String email,
     required String password,
@@ -66,33 +55,11 @@ class AuthService {
       }),
     );
 
-    // Check the response status and parse the body
     if (response.statusCode == 200) {
-      var data = json.decode(response.body);
-      if (data['isSuccess']) {
-        // If login is successful, save the session cookies (if any)
-        final SharedPreferences prefs = await SharedPreferences.getInstance();
-        // Assuming the token is saved as a cookie
-        if (response.headers['set-cookie'] != null) {
-          prefs.setString('sessionCookie', response.headers['set-cookie']!);
-        }
-        return {'isSuccess': true, 'message': data['message']};
-      } else {
-        // Handle cases where login is successful but the session creation fails
-        return {
-          'isSuccess': false,
-          'message':
-              data['message'] ?? 'Login successful but session not created'
-        };
-      }
-    } else {
-      // Handle errors
-      var data = json.decode(response.body);
-      return {
-        'isSuccess': false,
-        'message': data['message'] ?? 'Unknown error'
-      };
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      prefs.setString('sessionCookie', response.headers['set-cookie']!);
     }
+    return json.decode(response.body);
   }
 
   // Method to check if the user is logged in
