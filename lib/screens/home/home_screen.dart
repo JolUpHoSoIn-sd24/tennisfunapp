@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tennisfunapp/screens/match/match_info_screen.dart';
 import 'package:tennisfunapp/screens/test/test1.dart';
 import 'package:tennisfunapp/screens/test/test2.dart';
 
@@ -11,6 +12,7 @@ class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
 
   static final List<Widget> _widgetOptions = <Widget>[
+    MatchInfoScreen(),
     TestScreen1(),
     TestScreen2(),
   ];
