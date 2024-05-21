@@ -334,7 +334,7 @@ class _RequestMatchingPageState extends State<RequestMatchingPage>
             padding: EdgeInsets.symmetric(vertical: 20),
             child: ElevatedButton(
               onPressed: () async {
-                MatchApiService apiService = MatchApiService();
+                MatchApiService matchApiService = MatchApiService();
                 Map<String, dynamic> requestData = {
                   "startTime": startDate != null && startTime != null
                       ? DateTime(
@@ -357,13 +357,18 @@ class _RequestMatchingPageState extends State<RequestMatchingPage>
                   "description": descriptionController.text,
                 };
 
-                var response = await apiService.createMatchRequest(requestData);
+                var response =
+                    await matchApiService.createMatchRequest(requestData);
                 if (response.statusCode == 201) {
                   // 성공 처리 로직
                   print("매칭 정보 등록 성공: ${response.body}");
+                  Navigator.of(context).pop();
                 } else {
                   // 실패 처리 로직
                   print("요청 실패: ${response.body}");
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text("매칭 정보를 모두 정확히 입력해주세요.")),
+                  );
                 }
               },
               child: Text('저장하기'),
