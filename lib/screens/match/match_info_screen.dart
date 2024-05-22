@@ -34,23 +34,14 @@ class _TennisMatchScreenState extends State<MatchInfoScreen> {
   }
 
   void initializeMatchInfo() async {
-    bool isMatchRequestNeeded = await matchApiService.fetchMatchRequestStatus();
-    List<CandidateModel> selectedList =
-        isMatchRequestNeeded ? prompt : candidates;
+    try {
+      List<dynamic>? matchResults = await matchApiService.fetchMatchResults();
 
-    if (selectedList.isEmpty) {
-      selectedList = [
-        CandidateModel(
-            name: "AI가 매칭작업을 수행중입니다.",
-            skillLevel: "잠시만 기다려주세요.",
-            isPrompt: true),
-      ];
-    }
-
-    setState(() {
-      cards = selectedList.map((candidate) {
-        if (candidate.isPrompt) {
-          return PromptCard(
+      if (matchResults == null) {
+        // 응답 상태 코드가 200이 아닌 경우 (매치 리퀘스트 필요)
+        setState(() {
+          cards = prompt.map((candidate) {
+            return PromptCard(
               candidate: candidate,
               onMatchRequest: () async {
                 final result =
@@ -58,12 +49,53 @@ class _TennisMatchScreenState extends State<MatchInfoScreen> {
                 if (result != null && result == true) {
                   initializeMatchInfo();
                 }
-              });
-        } else {
-          return CandidateCard(candidate: candidate);
-        }
-      }).toList();
-    });
+              },
+            );
+          }).toList();
+        });
+      } else if (matchResults.isEmpty) {
+        // 결과가 빈 배열인 경우 (AI가 매치 상대를 찾고 있음)
+        setState(() {
+          cards = [
+            CandidateCard(
+              candidate: CandidateModel(
+                name: "AI가 매칭작업을 수행중입니다.",
+                skillLevel: "잠시만 기다려주세요.",
+              ),
+            ),
+          ];
+        });
+      } else {
+        // 결과가 빈 배열이 아닌 경우 (매치 결과 표시)
+        List<CandidateModel> candidates = matchResults.map((result) {
+          final opponent = result['opponent'];
+          final matchDetails = result['matchDetails'];
+          return CandidateModel(
+            name: opponent['name'],
+            skillLevel: 'NTRP: ${opponent['ntrp']}',
+          );
+        }).toList();
+
+        setState(() {
+          cards = candidates.map((candidate) {
+            return CandidateCard(candidate: candidate);
+          }).toList();
+        });
+      }
+    } catch (e) {
+      setState(() {
+        cards = [
+          PromptCard(
+            candidate: CandidateModel(
+              name: 'Error fetching match results',
+              skillLevel: 'Please try again later',
+              isPrompt: true,
+            ),
+            onMatchRequest: () {},
+          ),
+        ];
+      });
+    }
   }
 
   @override

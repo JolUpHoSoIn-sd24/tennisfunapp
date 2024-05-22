@@ -32,7 +32,7 @@ class MatchApiService {
     return response;
   }
 
-  Future<bool> fetchMatchRequestStatus() async {
+  Future<List<dynamic>?> fetchMatchResults() async {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? sessionCookie = prefs.getString('sessionCookie');
@@ -41,17 +41,25 @@ class MatchApiService {
         headers['Cookie'] = sessionCookie;
       }
       final response = await http.get(
-        Uri.parse("$_baseUrl/api/match/request"),
+        Uri.parse("$_baseUrl/api/match/results"),
         headers: headers,
       );
+      print("Request URL: $_baseUrl/api/match/results");
+      print("Response: ${response.statusCode}");
+      print("Response: ${response.body}");
       if (response.statusCode == 200) {
-        return false; // 예를 들어 API가 특정 조건을 충족하는 경우
+        Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+        if (jsonResponse['isSuccess'] == true) {
+          return jsonResponse['result'];
+        } else {
+          return []; // 빈 배열 반환
+        }
       } else {
-        return true; // 오류 상태 또는 다른 조건
+        return null; // 응답 상태 코드가 200이 아닌 경우 null 반환
       }
     } catch (e) {
-      // 네트워크 오류 등의 예외 처리
-      return true;
+      print("Error: $e");
+      return null; // 예외 발생 시 null 반환
     }
   }
 }
