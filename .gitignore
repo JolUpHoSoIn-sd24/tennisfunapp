@@ -74,3 +74,6 @@ profile
 # Local configuration files
 /local.yaml
 /local.properties
+
+# API key files
+lib/const/_url.dart

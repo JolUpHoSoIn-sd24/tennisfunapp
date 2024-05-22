@@ -90,12 +90,12 @@ class _LoginScreenState extends State<LoginScreen> {
         width: 260,
         child: ElevatedButton(
           style: ElevatedButton.styleFrom(
-              backgroundColor: Color(0xFF464EFF),
+              backgroundColor: const Color(0xFF464EFF),
               shape: RoundedRectangleBorder(
-                  side: BorderSide(width: 1, color: Color(0xFF464EFF)),
+                  side: const BorderSide(width: 1, color: Color(0xFF464EFF)),
                   borderRadius: BorderRadius.circular(20))),
           onPressed: _tryLogin,
-          child: Text('로그인',
+          child: const Text('로그인',
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: Colors.white,
