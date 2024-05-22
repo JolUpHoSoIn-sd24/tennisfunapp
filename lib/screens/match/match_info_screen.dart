@@ -16,8 +16,6 @@ class _TennisMatchScreenState extends State<MatchInfoScreen> {
   final CardSwiperController controller = CardSwiperController();
   final MatchApiService matchApiService = MatchApiService();
 
-  final List<CandidateModel> candidates = [];
-
   final List<CandidateModel> prompt = [
     CandidateModel(
         name: "게임 할 준비 되셨나요?",
@@ -40,18 +38,7 @@ class _TennisMatchScreenState extends State<MatchInfoScreen> {
       if (matchResults == null) {
         // 응답 상태 코드가 200이 아닌 경우 (매치 리퀘스트 필요)
         setState(() {
-          cards = prompt.map((candidate) {
-            return PromptCard(
-              candidate: candidate,
-              onMatchRequest: () async {
-                final result =
-                    await Navigator.pushNamed(context, '/match-request');
-                if (result != null && result == true) {
-                  initializeMatchInfo();
-                }
-              },
-            );
-          }).toList();
+          cards = [];
         });
       } else if (matchResults.isEmpty) {
         // 결과가 빈 배열인 경우 (AI가 매치 상대를 찾고 있음)
@@ -72,7 +59,7 @@ class _TennisMatchScreenState extends State<MatchInfoScreen> {
           final matchDetails = result['matchDetails'];
           final court = result['court'];
           return CandidateModel(
-            matchRequestId: result['matchRequestId'],
+            id: result['id'],
             opponent: opponent,
             matchDetails: matchDetails,
             court: court,
@@ -92,16 +79,7 @@ class _TennisMatchScreenState extends State<MatchInfoScreen> {
       }
     } catch (e) {
       setState(() {
-        cards = [
-          PromptCard(
-            candidate: CandidateModel(
-              name: 'Error fetching match results',
-              skillLevel: 'Please try again later',
-              isPrompt: true,
-            ),
-            onMatchRequest: () {},
-          ),
-        ];
+        cards = [];
       });
     }
   }
@@ -115,10 +93,20 @@ class _TennisMatchScreenState extends State<MatchInfoScreen> {
   @override
   Widget build(BuildContext context) {
     if (cards.isEmpty) {
-      // 데이터 로딩 중임을 사용자에게 알리는 위젯을 표시
       return Scaffold(
         appBar: AppBar(title: const Text('Tennis Matches')),
-        body: const Center(child: CircularProgressIndicator()),
+        body: Center(
+          child: PromptCard(
+            candidate: prompt[0],
+            onMatchRequest: () async {
+              final result =
+                  await Navigator.pushNamed(context, '/match-request');
+              if (result != null && result == true) {
+                initializeMatchInfo();
+              }
+            },
+          ),
+        ),
       );
     }
 
@@ -137,8 +125,35 @@ class _TennisMatchScreenState extends State<MatchInfoScreen> {
               child: cards[index],
             );
           },
-          onSwipe: (prevIndex, index, direction) {
-            debugPrint('Card $prevIndex was swiped $direction');
+          onSwipe: (prevIndex, index, direction) async {
+            debugPrint('Card $index was swiped $direction');
+            if (cards[index!] is CandidateCard) {
+              String? id = (cards[index!] as CandidateCard).candidate.id;
+              if (id != null) {
+                String feedback =
+                    direction == CardSwiperDirection.right ? 'LIKE' : 'DISLIKE';
+                bool success =
+                    await matchApiService.submitMatchFeedback(id, feedback);
+                setState(() {
+                  if (success) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('평가가 성공적으로 제출되었습니다.'),
+                        duration: Duration(milliseconds: 200),
+                      ),
+                    );
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('평가가 제출되지 않았습니다. 다시 시도해주세요.'),
+                        duration: Duration(milliseconds: 200),
+                      ),
+                    );
+                  }
+                });
+                initializeMatchInfo();
+              }
+            }
             return true;
           },
           onUndo: (prevIndex, index, direction) {

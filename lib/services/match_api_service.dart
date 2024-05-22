@@ -62,4 +62,39 @@ class MatchApiService {
       return null; // 예외 발생 시 null 반환
     }
   }
+
+  Future<bool> submitMatchFeedback(String matchId, String feedback) async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? sessionCookie = prefs.getString('sessionCookie');
+      var headers = <String, String>{
+        'Content-Type': 'application/json',
+      };
+      if (sessionCookie != null) {
+        headers['Cookie'] = sessionCookie;
+      }
+
+      var requestBody = jsonEncode({
+        'feedback': feedback,
+      });
+
+      final response = await http.post(
+        Uri.parse("$_baseUrl/api/match/results/$matchId/feedback"),
+        headers: headers,
+        body: requestBody,
+      );
+      print("Request URL: $_baseUrl/api/match-results/$matchId/feedback");
+      print("Request Body: $requestBody");
+      print("Response: ${response.statusCode}");
+      print("Response: ${response.body}");
+      if (response.statusCode == 200) {
+        return true;
+      } else {
+        return false;
+      }
+    } catch (e) {
+      print("Error: $e");
+      return false;
+    }
+  }
 }
