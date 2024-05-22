@@ -70,9 +70,17 @@ class _TennisMatchScreenState extends State<MatchInfoScreen> {
         List<CandidateModel> candidates = matchResults.map((result) {
           final opponent = result['opponent'];
           final matchDetails = result['matchDetails'];
+          final court = result['court'];
           return CandidateModel(
+            matchRequestId: result['matchRequestId'],
+            opponent: opponent,
+            matchDetails: matchDetails,
+            court: court,
+            status: result['status'],
             name: opponent['name'],
-            skillLevel: 'NTRP: ${opponent['ntrp']}',
+            skillLevel: '${opponent['ntrp']}',
+            age: opponent['age'],
+            gender: opponent['gender'],
           );
         }).toList();
 

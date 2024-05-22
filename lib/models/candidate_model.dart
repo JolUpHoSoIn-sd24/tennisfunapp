@@ -1,8 +1,25 @@
 class CandidateModel {
+  final String? matchRequestId;
+  final Map<String, dynamic>? opponent;
+  final Map<String, dynamic>? matchDetails;
+  final Map<String, dynamic>? court;
+  final String? status;
   final String name;
   final String skillLevel;
+  final int? age;
+  final String? gender;
   bool isPrompt;
 
-  CandidateModel(
-      {required this.name, required this.skillLevel, this.isPrompt = false});
+  CandidateModel({
+    this.matchRequestId,
+    this.opponent,
+    this.matchDetails,
+    this.court,
+    this.status,
+    required this.name,
+    required this.skillLevel,
+    this.age,
+    this.gender,
+    this.isPrompt = false,
+  });
 }
