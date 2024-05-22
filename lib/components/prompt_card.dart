@@ -27,7 +27,7 @@ class PromptCard extends StatelessWidget {
             SizedBox(height: 40),
             ElevatedButton(
               onPressed: onMatchRequest,
-              child: Text('Request Match'),
+              child: Text('매칭을 요청하거나 수정하세요.'),
             )
           ],
         ),

@@ -362,7 +362,7 @@ class _RequestMatchingPageState extends State<RequestMatchingPage>
                 if (response.statusCode == 201) {
                   // 성공 처리 로직
                   print("매칭 정보 등록 성공: ${response.body}");
-                  Navigator.of(context).pop();
+                  Navigator.of(context).pop(true);
                 } else {
                   // 실패 처리 로직
                   print("요청 실패: ${response.body}");
