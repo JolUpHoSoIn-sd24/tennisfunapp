@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_card_swiper/flutter_card_swiper.dart';
+import 'package:http/src/response.dart';
 import 'package:tennisfunapp/models/candidate_model.dart';
 import 'package:tennisfunapp/components/candidate_card.dart';
 import 'package:tennisfunapp/components/prompt_card.dart';
@@ -34,42 +35,52 @@ class _TennisMatchScreenState extends State<MatchInfoScreen> {
   void initializeMatchInfo() async {
     try {
       List<dynamic>? matchResults = await matchApiService.fetchMatchResults();
+      bool matchRequest = await matchApiService.fetchMatchRequest();
 
-      if (matchResults == null) {
+      if (!matchRequest) {
         // 응답 상태 코드가 200이 아닌 경우 (매치 리퀘스트 필요)
         setState(() {
           cards = [];
         });
-      } else if (matchResults.isEmpty) {
+      } else if (matchResults?.isEmpty ?? true) {
         // 결과가 빈 배열인 경우 (AI가 매치 상대를 찾고 있음)
         setState(() {
           cards = [
-            CandidateCard(
+            PromptCard(
               candidate: CandidateModel(
                 name: "AI가 매칭작업을 수행중입니다.",
                 skillLevel: "잠시만 기다려주세요.",
+                isPrompt: true,
               ),
+              onMatchRequest: () async {
+                final result =
+                    await Navigator.pushNamed(context, '/match-request');
+                if (result != null && result == true) {
+                  initializeMatchInfo();
+                }
+              },
             ),
           ];
         });
       } else {
         // 결과가 빈 배열이 아닌 경우 (매치 결과 표시)
-        List<CandidateModel> candidates = matchResults.map((result) {
-          final opponent = result['opponent'];
-          final matchDetails = result['matchDetails'];
-          final court = result['court'];
-          return CandidateModel(
-            id: result['id'],
-            opponent: opponent,
-            matchDetails: matchDetails,
-            court: court,
-            status: result['status'],
-            name: opponent['name'],
-            skillLevel: '${opponent['ntrp']}',
-            age: opponent['age'],
-            gender: opponent['gender'],
-          );
-        }).toList();
+        List<CandidateModel> candidates = matchResults?.map((result) {
+              final opponent = result['opponent'];
+              final matchDetails = result['matchDetails'];
+              final court = result['court'];
+              return CandidateModel(
+                id: result['id'],
+                opponent: opponent,
+                matchDetails: matchDetails,
+                court: court,
+                status: result['status'],
+                name: opponent['name'],
+                skillLevel: '${opponent['ntrp']}',
+                age: opponent['age'],
+                gender: opponent['gender'],
+              );
+            })?.toList() ??
+            [];
 
         setState(() {
           cards = candidates.map((candidate) {
@@ -128,7 +139,7 @@ class _TennisMatchScreenState extends State<MatchInfoScreen> {
           onSwipe: (prevIndex, index, direction) async {
             debugPrint('Card $index was swiped $direction');
             if (cards[index!] is CandidateCard) {
-              String? id = (cards[index!] as CandidateCard).candidate.id;
+              String? id = (cards[index] as CandidateCard).candidate.id;
               if (id != null) {
                 String feedback =
                     direction == CardSwiperDirection.right ? 'LIKE' : 'DISLIKE';

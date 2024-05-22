@@ -63,6 +63,29 @@ class MatchApiService {
     }
   }
 
+  Future<bool> fetchMatchRequest() async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? sessionCookie = prefs.getString('sessionCookie');
+      var headers = <String, String>{};
+      if (sessionCookie != null) {
+        headers['Cookie'] = sessionCookie;
+      }
+      final response = await http.get(
+        Uri.parse("$_baseUrl/api/match/request"),
+        headers: headers,
+      );
+      print("Request URL: $_baseUrl/api/match/request");
+      print("Response: ${response.statusCode}");
+      print("Response: ${response.body}");
+
+      return response.statusCode == 200;
+    } catch (e) {
+      print("Error: $e");
+      throw Exception('Failed to fetch match requests');
+    }
+  }
+
   Future<bool> submitMatchFeedback(String matchId, String feedback) async {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
