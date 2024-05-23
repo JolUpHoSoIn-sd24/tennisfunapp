@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:tennisfunapp/models/game.dart';
 
 class MatchApiService {
   final String _baseUrl = "http://localhost:8080";
@@ -118,6 +119,42 @@ class MatchApiService {
     } catch (e) {
       print("Error: $e");
       return false;
+    }
+  }
+
+  Future<Game?> fetchGameDetails() async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? sessionCookie = prefs.getString('sessionCookie');
+
+      var headers = <String, String>{
+        'Content-Type': 'application/json',
+      };
+
+      if (sessionCookie != null) {
+        headers['Cookie'] = sessionCookie;
+      }
+
+      final response = await http.get(
+        Uri.parse('$_baseUrl/api/game'),
+        headers: headers,
+      );
+
+      print("Request URL: $_baseUrl/api/game");
+      print("Response: ${response.statusCode}");
+      print("Response: ${response.body}");
+
+      if (response.statusCode == 200) {
+        final jsonResponse = json.decode(response.body);
+        if (jsonResponse['isSuccess']) {
+          return Game.fromJson(jsonResponse['result']);
+        }
+      }
+
+      return null;
+    } catch (e) {
+      print("Error: $e");
+      return null;
     }
   }
 }
