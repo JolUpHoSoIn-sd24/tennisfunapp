@@ -3,6 +3,8 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tennisfunapp/const/base_url.dart';
 
+import 'package:tennisfunapp/models/game.dart';
+
 class MatchApiService {
   final String _baseUrl = BaseUrl.baseUrl;
 
@@ -61,6 +63,100 @@ class MatchApiService {
     } catch (e) {
       print("Error: $e");
       return null; // 예외 발생 시 null 반환
+    }
+  }
+
+  Future<bool> fetchMatchRequest() async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? sessionCookie = prefs.getString('sessionCookie');
+      var headers = <String, String>{};
+      if (sessionCookie != null) {
+        headers['Cookie'] = sessionCookie;
+      }
+      final response = await http.get(
+        Uri.parse("$_baseUrl/api/match/request"),
+        headers: headers,
+      );
+      print("Request URL: $_baseUrl/api/match/request");
+      print("Response: ${response.statusCode}");
+      print("Response: ${response.body}");
+
+      return response.statusCode == 200;
+    } catch (e) {
+      print("Error: $e");
+      throw Exception('Failed to fetch match requests');
+    }
+  }
+
+  Future<bool> submitMatchFeedback(String matchId, String feedback) async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? sessionCookie = prefs.getString('sessionCookie');
+      var headers = <String, String>{
+        'Content-Type': 'application/json',
+      };
+      if (sessionCookie != null) {
+        headers['Cookie'] = sessionCookie;
+      }
+
+      var requestBody = jsonEncode({
+        'feedback': feedback,
+      });
+
+      final response = await http.post(
+        Uri.parse("$_baseUrl/api/match/results/$matchId/feedback"),
+        headers: headers,
+        body: requestBody,
+      );
+      print("Request URL: $_baseUrl/api/match-results/$matchId/feedback");
+      print("Request Body: $requestBody");
+      print("Response: ${response.statusCode}");
+      print("Response: ${response.body}");
+      if (response.statusCode == 200) {
+        return true;
+      } else {
+        return false;
+      }
+    } catch (e) {
+      print("Error: $e");
+      return false;
+    }
+  }
+
+  Future<Game?> fetchGameDetails() async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? sessionCookie = prefs.getString('sessionCookie');
+
+      var headers = <String, String>{
+        'Content-Type': 'application/json',
+      };
+
+      if (sessionCookie != null) {
+        headers['Cookie'] = sessionCookie;
+      }
+
+      final response = await http.get(
+        Uri.parse('$_baseUrl/api/game'),
+        headers: headers,
+      );
+
+      print("Request URL: $_baseUrl/api/game");
+      print("Response: ${response.statusCode}");
+      print("Response: ${response.body}");
+
+      if (response.statusCode == 200) {
+        final jsonResponse = json.decode(response.body);
+        if (jsonResponse['isSuccess']) {
+          return Game.fromJson(jsonResponse['result']);
+        }
+      }
+
+      return null;
+    } catch (e) {
+      print("Error: $e");
+      return null;
     }
   }
 }

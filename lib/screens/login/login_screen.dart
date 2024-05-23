@@ -15,19 +15,23 @@ class _LoginScreenState extends State<LoginScreen> {
 
   bool _isFocused = false;
 
-  void _tryLogin() async {
-    if (_formKey.currentState!.validate()) {
-      _formKey.currentState!.save();
-      // Use the correct method name and check for the returned structure.
-      var result =
-          await AuthService().login(email: _email, password: _password);
-      if (result['isSuccess']) {
-        Navigator.pushReplacementNamed(context, '/home');
-      } else {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(result['message'])));
-      }
-    }
+  // void _tryLogin() async {
+  //   if (_formKey.currentState!.validate()) {
+  //     _formKey.currentState!.save();
+  //     // Use the correct method name and check for the returned structure.
+  //     var result =
+  //         await AuthService().login(email: _email, password: _password);
+  //     if (result['isSuccess']) {
+  //       Navigator.pushReplacementNamed(context, '/home');
+  //     } else {
+  //       ScaffoldMessenger.of(context)
+  //           .showSnackBar(SnackBar(content: Text(result['message'])));
+  //     }
+  //   }
+  // }
+
+  void _tryLogin() {
+    Navigator.pushReplacementNamed(context, '/match-request');
   }
 
   @override

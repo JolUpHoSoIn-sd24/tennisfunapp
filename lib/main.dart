@@ -1,4 +1,7 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:kakao_map_plugin/kakao_map_plugin.dart';
 import 'package:tennisfunapp/screens/home/home_screen.dart';
 import 'package:tennisfunapp/screens/login/login_screen.dart';
 import 'package:tennisfunapp/screens/match/request_matching_page.dart';
@@ -6,7 +9,14 @@ import 'package:tennisfunapp/screens/signup/sign_up_done_screen.dart';
 import 'package:tennisfunapp/screens/signup/sign_up_screen.dart';
 import 'package:tennisfunapp/services/auth_service.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  await dotenv.load(fileName: 'assets/env/.env');
+  AuthRepository.initialize(
+    appKey: dotenv.env['APP_KEY'] ?? '',
+    // baseUrl: dotenv.env['BASE_URL'] ?? ''
+  );
   runApp(MyApp());
 }
 

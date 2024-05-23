@@ -1,5 +1,5 @@
 class CandidateModel {
-  final String? matchRequestId;
+  final String? id;
   final Map<String, dynamic>? opponent;
   final Map<String, dynamic>? matchDetails;
   final Map<String, dynamic>? court;
@@ -11,7 +11,7 @@ class CandidateModel {
   bool isPrompt;
 
   CandidateModel({
-    this.matchRequestId,
+    this.id,
     this.opponent,
     this.matchDetails,
     this.court,

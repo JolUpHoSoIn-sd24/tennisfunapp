@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_card_swiper/flutter_card_swiper.dart';
+import 'package:http/src/response.dart';
 import 'package:tennisfunapp/models/candidate_model.dart';
 import 'package:tennisfunapp/components/candidate_card.dart';
 import 'package:tennisfunapp/components/prompt_card.dart';
@@ -15,8 +16,6 @@ class MatchInfoScreen extends StatefulWidget {
 class _TennisMatchScreenState extends State<MatchInfoScreen> {
   final CardSwiperController controller = CardSwiperController();
   final MatchApiService matchApiService = MatchApiService();
-
-  final List<CandidateModel> candidates = [];
 
   final List<CandidateModel> prompt = [
     CandidateModel(
@@ -36,13 +35,23 @@ class _TennisMatchScreenState extends State<MatchInfoScreen> {
   void initializeMatchInfo() async {
     try {
       List<dynamic>? matchResults = await matchApiService.fetchMatchResults();
+      bool matchRequest = await matchApiService.fetchMatchRequest();
 
-      if (matchResults == null) {
+      if (!matchRequest) {
         // 응답 상태 코드가 200이 아닌 경우 (매치 리퀘스트 필요)
         setState(() {
-          cards = prompt.map((candidate) {
-            return PromptCard(
-              candidate: candidate,
+          cards = [];
+        });
+      } else if (matchResults?.isEmpty ?? true) {
+        // 결과가 빈 배열인 경우 (AI가 매치 상대를 찾고 있음)
+        setState(() {
+          cards = [
+            PromptCard(
+              candidate: CandidateModel(
+                name: "AI가 매칭작업을 수행중입니다.",
+                skillLevel: "잠시만 기다려주세요.",
+                isPrompt: true,
+              ),
               onMatchRequest: () async {
                 final result =
                     await Navigator.pushNamed(context, '/match-request');
@@ -50,39 +59,28 @@ class _TennisMatchScreenState extends State<MatchInfoScreen> {
                   initializeMatchInfo();
                 }
               },
-            );
-          }).toList();
-        });
-      } else if (matchResults.isEmpty) {
-        // 결과가 빈 배열인 경우 (AI가 매치 상대를 찾고 있음)
-        setState(() {
-          cards = [
-            CandidateCard(
-              candidate: CandidateModel(
-                name: "AI가 매칭작업을 수행중입니다.",
-                skillLevel: "잠시만 기다려주세요.",
-              ),
             ),
           ];
         });
       } else {
         // 결과가 빈 배열이 아닌 경우 (매치 결과 표시)
-        List<CandidateModel> candidates = matchResults.map((result) {
-          final opponent = result['opponent'];
-          final matchDetails = result['matchDetails'];
-          final court = result['court'];
-          return CandidateModel(
-            matchRequestId: result['matchRequestId'],
-            opponent: opponent,
-            matchDetails: matchDetails,
-            court: court,
-            status: result['status'],
-            name: opponent['name'],
-            skillLevel: '${opponent['ntrp']}',
-            age: opponent['age'],
-            gender: opponent['gender'],
-          );
-        }).toList();
+        List<CandidateModel> candidates = matchResults?.map((result) {
+              final opponent = result['opponent'];
+              final matchDetails = result['matchDetails'];
+              final court = result['court'];
+              return CandidateModel(
+                id: result['id'],
+                opponent: opponent,
+                matchDetails: matchDetails,
+                court: court,
+                status: result['status'],
+                name: opponent['name'],
+                skillLevel: '${opponent['ntrp']}',
+                age: opponent['age'],
+                gender: opponent['gender'],
+              );
+            })?.toList() ??
+            [];
 
         setState(() {
           cards = candidates.map((candidate) {
@@ -92,16 +90,7 @@ class _TennisMatchScreenState extends State<MatchInfoScreen> {
       }
     } catch (e) {
       setState(() {
-        cards = [
-          PromptCard(
-            candidate: CandidateModel(
-              name: 'Error fetching match results',
-              skillLevel: 'Please try again later',
-              isPrompt: true,
-            ),
-            onMatchRequest: () {},
-          ),
-        ];
+        cards = [];
       });
     }
   }
@@ -115,10 +104,20 @@ class _TennisMatchScreenState extends State<MatchInfoScreen> {
   @override
   Widget build(BuildContext context) {
     if (cards.isEmpty) {
-      // 데이터 로딩 중임을 사용자에게 알리는 위젯을 표시
       return Scaffold(
         appBar: AppBar(title: const Text('Tennis Matches')),
-        body: const Center(child: CircularProgressIndicator()),
+        body: Center(
+          child: PromptCard(
+            candidate: prompt[0],
+            onMatchRequest: () async {
+              final result =
+                  await Navigator.pushNamed(context, '/match-request');
+              if (result != null && result == true) {
+                initializeMatchInfo();
+              }
+            },
+          ),
+        ),
       );
     }
 
@@ -137,8 +136,35 @@ class _TennisMatchScreenState extends State<MatchInfoScreen> {
               child: cards[index],
             );
           },
-          onSwipe: (prevIndex, index, direction) {
-            debugPrint('Card $prevIndex was swiped $direction');
+          onSwipe: (prevIndex, index, direction) async {
+            debugPrint('Card $index was swiped $direction');
+            if (cards[index!] is CandidateCard) {
+              String? id = (cards[index] as CandidateCard).candidate.id;
+              if (id != null) {
+                String feedback =
+                    direction == CardSwiperDirection.right ? 'LIKE' : 'DISLIKE';
+                bool success =
+                    await matchApiService.submitMatchFeedback(id, feedback);
+                setState(() {
+                  if (success) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('평가가 성공적으로 제출되었습니다.'),
+                        duration: Duration(milliseconds: 200),
+                      ),
+                    );
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('평가가 제출되지 않았습니다. 다시 시도해주세요.'),
+                        duration: Duration(milliseconds: 200),
+                      ),
+                    );
+                  }
+                });
+                initializeMatchInfo();
+              }
+            }
             return true;
           },
           onUndo: (prevIndex, index, direction) {

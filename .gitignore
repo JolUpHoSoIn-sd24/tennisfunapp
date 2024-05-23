@@ -77,3 +77,6 @@ profile
 
 # API key files
 lib/const/_url.dart
+
+# dotenv environment variables file
+.env*

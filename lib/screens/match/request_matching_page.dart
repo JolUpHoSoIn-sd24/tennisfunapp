@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:intl/intl.dart';
+import 'package:kakao_map_plugin/kakao_map_plugin.dart';
+import 'package:tennisfunapp/components/location_map.dart';
 import 'package:tennisfunapp/services/match_api_service.dart';
 
 enum MatchObjective { INTENSE, FUN, ANY }
+
+bool _isInitialized = false;
 
 class RequestMatchingPage extends StatefulWidget {
   const RequestMatchingPage({Key? key}) : super(key: key);
@@ -33,6 +38,27 @@ class _RequestMatchingPageState extends State<RequestMatchingPage>
   TextEditingController descriptionController = TextEditingController();
   TextEditingController reservationCourtIdController = TextEditingController();
 
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   if (!_isInitialized) {
+  //     _initializeAuthRepository();
+  //     _isInitialized = true;
+  //   }
+  // }
+
+  // Future<void> _initializeAuthRepository() async {
+  //   try {
+  //     await dotenv.load(fileName: 'assets/env/.env');
+  //     AuthRepository.initialize(
+  //       appKey: dotenv.env['APP_KEY'] ?? '',
+  //       // baseUrl: dotenv.env['BASE_URL'] ?? '' // 필요한 경우 baseUrl도 설정
+  //     );
+  //   } catch (e) {
+  //     // 에러 처리 로직
+  //   }
+  // }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -53,6 +79,30 @@ class _RequestMatchingPageState extends State<RequestMatchingPage>
       body: ListView(
         padding: EdgeInsets.all(8),
         children: [
+          Padding(
+            padding: EdgeInsets.all(8.0),
+            child: Text(
+              '현재 위치',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+          ),
+          Container(
+            width: 200,
+            height: 400,
+            child: LocationMap(),
+            // child: ElevatedButton(
+            //   onPressed: () {
+            //     Navigator.push(
+            //       context,
+            //       MaterialPageRoute(
+            //         builder: (context) => LocationMap(),
+            //       ),
+            //     );
+            //   },
+            //   child: Text('위치 설정하기'),
+            // ),
+          ),
+          SizedBox(height: 40),
           Padding(
             padding: EdgeInsets.all(8.0),
             child: Text(
@@ -173,6 +223,7 @@ class _RequestMatchingPageState extends State<RequestMatchingPage>
               ),
             ),
           ),
+          SizedBox(height: 40),
           Padding(
             padding: EdgeInsets.symmetric(vertical: 8),
             child: Text(
@@ -216,6 +267,7 @@ class _RequestMatchingPageState extends State<RequestMatchingPage>
               },
             ),
           ),
+          SizedBox(height: 40),
           Padding(
             padding: EdgeInsets.symmetric(vertical: 8),
             child: Text(
