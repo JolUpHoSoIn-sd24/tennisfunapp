@@ -4,7 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tennisfunapp/models/game.dart';
 
 class MatchApiService {
-  final String _baseUrl = "http://localhost:8080";
+  final String _baseUrl = "https://localhost:8080";
 
   Future<http.Response> createMatchRequest(
       Map<String, dynamic> matchRequestData) async {

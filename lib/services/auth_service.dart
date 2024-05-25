@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthService {
-  String _baseUrl = "http://localhost:8080";
+  String _baseUrl = "https://localhost:8080";
 
   Future<Map<String, dynamic>> register({
     required String email,

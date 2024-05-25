@@ -17,6 +17,10 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Tennis Fun App',
+      theme: ThemeData(
+        primaryColor: const Color(0xFF474EFF),
+        scaffoldBackgroundColor: Colors.white,
+      ),
       // Remove initialRoute to use home property with FutureBuilder
       home: FutureBuilder(
         future: _authService.isUserLoggedIn(),
