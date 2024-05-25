@@ -7,7 +7,9 @@ import 'package:tennisfunapp/screens/signup/sign_up_screen.dart';
 import 'package:tennisfunapp/services/auth_service.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(
+     MyApp(),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -17,21 +19,16 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Tennis Fun App',
-      // Remove initialRoute to use home property with FutureBuilder
       home: FutureBuilder(
         future: _authService.isUserLoggedIn(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
             if (snapshot.hasData && snapshot.data == true) {
-              // User is logged in, send them to the home screen
               return HomeScreen();
             } else {
-              // User is not logged in, send them to the login screen
               return LoginScreen();
-              //return HomeScreen();
             }
           } else {
-            // While checking the login state, show a loading spinner
             return const Scaffold(
               body: Center(
                 child: CircularProgressIndicator(),
@@ -50,3 +47,4 @@ class MyApp extends StatelessWidget {
     );
   }
 }
+
