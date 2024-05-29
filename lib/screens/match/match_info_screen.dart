@@ -105,7 +105,7 @@ class _TennisMatchScreenState extends State<MatchInfoScreen> {
   Widget build(BuildContext context) {
     if (cards.isEmpty) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Tennis Matches')),
+        appBar: AppBar(title: const Text('테니스 매칭')),
         body: Center(
           child: PromptCard(
             candidate: prompt[0],
@@ -123,7 +123,7 @@ class _TennisMatchScreenState extends State<MatchInfoScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Tennis Matches'),
+        title: const Text('테니스 매칭'),
       ),
       body: SafeArea(
         child: CardSwiper(

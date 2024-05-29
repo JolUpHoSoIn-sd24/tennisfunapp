@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:tennisfunapp/services/match_api_service.dart';
 import 'package:tennisfunapp/models/game.dart';
 
@@ -51,13 +52,13 @@ class MatchHistoryScreen extends StatelessWidget {
                         Text('코트: ${game.court.name}'),
                         Text('코트 타입: ${game.court.surfaceType}'),
                         Text(
-                          '대관 비용: ${game.rentalCost}원',
+                          '대관 비용: ${game.rentalCost.toInt()}원',
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        Text('시작 시간: ${game.startTime}'),
-                        Text('종료 시간: ${game.endTime}'),
+                        Text(
+                            '경기 시간: ${DateFormat('yyyy년 MM월 dd일 HH:mm').format(game.startTime)} - ${DateFormat('HH:mm').format(game.endTime)}'),
                         Text(
                           '상태: ${game.state}',
                           style: TextStyle(
