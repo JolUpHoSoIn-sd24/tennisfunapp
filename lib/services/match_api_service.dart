@@ -4,7 +4,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tennisfunapp/models/game.dart';
 
 class MatchApiService {
-  final String _baseUrl = "https://tennisfun-rrrlqvarua-du.a.run.app/";
+  //final String _baseUrl = "http://localhost:8080";
+  String _baseUrl = "https://tennisfun-rrrlqvarua-du.a.run.app";
 
   Future<http.Response> createMatchRequest(
       Map<String, dynamic> matchRequestData) async {
@@ -45,7 +46,7 @@ class MatchApiService {
         Uri.parse("$_baseUrl/api/match/results"),
         headers: headers,
       );
-      print("Request URL: $_baseUrl/api/match/results");
+      print("fetchMatchResults Request URL: $_baseUrl/api/match/results");
       print("Response: ${response.statusCode}");
       print("Response: ${response.body}");
       if (response.statusCode == 200) {
