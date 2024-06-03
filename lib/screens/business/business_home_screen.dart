@@ -3,12 +3,12 @@ import 'package:flutter/material.dart';
 
 import '../court/court_screen.dart';
 
-class BusinessHomeScreenHomeScreen extends StatefulWidget {
+class BusinessHomeScreen extends StatefulWidget {
   @override
-  _BusinessHomeScreenHomeScreenState createState() => _BusinessHomeScreenHomeScreenState();
+  _BusinessHomeScreenState createState() => _BusinessHomeScreenState();
 }
 
-class _BusinessHomeScreenHomeScreenState extends State<BusinessHomeScreenHomeScreen> {
+class _BusinessHomeScreenState extends State<BusinessHomeScreen> {
   int _selectedIndex = 0;
 
   static final List<Widget> _widgetOptions = <Widget>[

@@ -51,7 +51,7 @@ class MyApp extends StatelessWidget {
         '/signup': (context) => SignUpScreen(),
         '/login': (context) => LoginScreen(),
         '/match-request': (context) => const RequestMatchingPage(),
-        '/business/home' : (context) => BusinessHomeScreenHomeScreen(),
+        '/business/home' : (context) => BusinessHomeScreen(),
       },
     );
   }
