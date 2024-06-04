@@ -33,9 +33,9 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
           BottomNavigationBarItem(
-              icon: Icon(Icons.business), label: 'Business'),
+              icon: Icon(Icons.sports_tennis), label: '매칭찾기'),
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: '마이페이지'),
         ],
         currentIndex: _selectedIndex,
         selectedItemColor: Colors.amber[800],
