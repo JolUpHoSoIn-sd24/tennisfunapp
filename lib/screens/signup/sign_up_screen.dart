@@ -118,6 +118,24 @@ class _SignUpScreenState extends State<SignUpScreen> {
           padding: EdgeInsets.only(left: 10),
           child: Label(label),
         ),
+        if (label == 'NTRP') // 조건문 추가
+          ...[
+          SizedBox(width: 8), // 아이콘과 텍스트 사이의 간격
+          Text(
+            'NTRP가 무엇인가요?',
+            style: TextStyle(
+              color: Colors.grey,
+              fontSize: 10,
+              fontFamily: 'Pretendard',
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          SizedBox(width: 4),
+          HelpIcon(
+            helpText:
+                'NTRP(National Tennis Rating Program)는 테니스 실력을 평가하는 척도입니다. 1.0부터 7.0까지 있으며, 숫자가 높을수록 실력이 좋습니다.',
+          ),
+        ],
       ],
     );
   }
@@ -417,6 +435,34 @@ class _SignUpScreenState extends State<SignUpScreen> {
         ),
       ),
       centerTitle: true,
+    );
+  }
+}
+
+class HelpIcon extends StatelessWidget {
+  final String helpText;
+
+  HelpIcon({required this.helpText});
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+      icon: Icon(Icons.help_outline),
+      onPressed: () {
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: Text('NTRP 설명'),
+            content: Text(helpText),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: Text('확인'),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }
