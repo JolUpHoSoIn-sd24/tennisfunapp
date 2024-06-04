@@ -62,7 +62,26 @@ class AuthService {
     }
     return json.decode(response.body);
   }
+  Future<Map<String, dynamic>> businessLogin({
+    required String email,
+    required String password,
+  }) async {
+    var url = Uri.parse('$_baseUrl/api/business/login');
+    var response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: json.encode({
+        'email': email,
+        'password': password,
+      }),
+    );
 
+    if (response.statusCode == 200) {
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      prefs.setString('sessionCookie', response.headers['set-cookie']!);
+    }
+    return json.decode(response.body);
+  }
   // Method to check if the user is logged in
   Future<bool> isUserLoggedIn() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
