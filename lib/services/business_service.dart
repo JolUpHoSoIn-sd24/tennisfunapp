@@ -27,6 +27,30 @@ class BusinessService {
     }
   }
 
+  Future<Map<String, dynamic>?> fetchCourtReservations() async {
+    var url = Uri.parse('$_baseUrl/api/business/courts/reservations');
+    var response = await http.get(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Cookie': await _getSessionCookie(),
+      },
+    );
+
+    if (response.statusCode == 200) {
+      Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+      if (jsonResponse['isSuccess'] == true && jsonResponse['result'] is List) {
+        return {
+          'result': jsonResponse['result']
+        };
+      } else {
+        return null; // null 반환
+      }
+    } else {
+      throw Exception('Failed to load court reservations');
+    }
+  }
+
   Future<String> _getSessionCookie() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('sessionCookie') ?? '';

@@ -16,11 +16,15 @@ class CourtCard extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
             TextButton(
-              onPressed: () {},
+              onPressed: () {
+                // 수정하기 기능을 구현하세요
+              },
               child: Text('수정하기', style: TextStyle(color: Colors.blue)),
             ),
             TextButton(
-              onPressed: () {},
+              onPressed: () {
+                Navigator.pushNamed(context, '/business/reservations');
+              },
               child: Text('예약현황', style: TextStyle(color: Colors.blue)),
             ),
           ],
