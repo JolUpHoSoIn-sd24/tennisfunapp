@@ -4,10 +4,9 @@ import 'package:tennisfunapp/services/match_api_service.dart';
 
 enum MatchObjective { INTENSE, FUN, ANY }
 
-//토글버튼으로 새로 추가된 라인
+// 토글버튼으로 새로 추가된 라인
 final isSinglesbutton = [true, false];
 final objectivebutton = [true, false, false];
-//
 
 class RequestMatchingPage extends StatefulWidget {
   const RequestMatchingPage({Key? key}) : super(key: key);
@@ -38,6 +37,7 @@ class _RequestMatchingPageState extends State<RequestMatchingPage>
   TextEditingController rentalCostController = TextEditingController();
   TextEditingController descriptionController = TextEditingController();
   TextEditingController reservationCourtIdController = TextEditingController();
+  TextEditingController distanceController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -64,7 +64,6 @@ class _RequestMatchingPageState extends State<RequestMatchingPage>
           AvailableTime(context),
 
           FullWidthThinBox(),
-          // EndDate(context),
           Label('선호 러닝 타임'),
           RunningTimeRangeSlider(),
           // MinTime(),
@@ -110,28 +109,23 @@ class _RequestMatchingPageState extends State<RequestMatchingPage>
                 MatchApiService matchApiService = MatchApiService();
                 Map<String, dynamic> requestData = {
                   "startTime": startDate != null && startTime != null
-                      ? DateTime(
-                              startDate!.year,
-                              startDate!.month,
-                              startDate!.day,
-                              startTime!.hour,
-                              startTime!.minute)
-                          .toIso8601String()
+                      ? DateTime(startDate!.year, startDate!.month, startDate!.day, startTime!.hour, startTime!.minute).toIso8601String()
                       : null,
                   "endTime": endDate != null && endTime != null
-                      ? DateTime(endDate!.year, endDate!.month, endDate!.day,
-                              endTime!.hour, endTime!.minute)
-                          .toIso8601String()
+                      ? DateTime(endDate!.year, endDate!.month, endDate!.day, endTime!.hour, endTime!.minute).toIso8601String()
                       : null,
                   "objective": objective.toString().split('.').last,
                   "isSingles": isSingles,
+                  "x": 126.887847771379,  // Provide correct values or obtain them dynamically
+                  "y": 37.5204279064529,  // Provide correct values or obtain them dynamically
+                  "maxDistance": double.tryParse(distanceController.text),
+                  "dislikedCourts": dislikedCourtsController.text.split(','),
                   "minTime": int.tryParse(minTimeController.text),
                   "maxTime": int.tryParse(maxTimeController.text),
-                  "description": descriptionController.text,
+                  "isReserved": hasReservedCourt,
                 };
 
-                var response =
-                    await matchApiService.createMatchRequest(requestData);
+                var response = await matchApiService.createMatchRequest(requestData);
                 if (response.statusCode == 201) {
                   // 성공 처리 로직
                   print("매칭 정보 등록 성공: ${response.body}");
@@ -459,8 +453,7 @@ class _RequestMatchingPageState extends State<RequestMatchingPage>
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.calendar_today,
-                      size: 16, color: Colors.black),
+                  const Icon(Icons.calendar_today, size: 16, color: Colors.black),
                   Text(
                     endDate == null
                         ? '종료 날짜 선택'
@@ -510,11 +503,6 @@ class _RequestMatchingPageState extends State<RequestMatchingPage>
     return ListTile(
       contentPadding: EdgeInsets.zero,
 
-      // leading: Icon(
-      //   Icons.event,
-      //   color: Color(0xFF464EFF),
-      //   // size: 25,
-      // ),
       title: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
@@ -530,7 +518,6 @@ class _RequestMatchingPageState extends State<RequestMatchingPage>
                 setState(() {
                   startDate = picked;
 
-                  //변경된 디자인에 따른 추가된 라인
                   endDate = picked;
                 });
               }
@@ -543,8 +530,7 @@ class _RequestMatchingPageState extends State<RequestMatchingPage>
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.calendar_today,
-                      size: 12, color: Colors.black),
+                  const Icon(Icons.calendar_today, size: 12, color: Colors.black),
                   Text(
                     startDate == null
                         ? '시작 날짜 선택'
