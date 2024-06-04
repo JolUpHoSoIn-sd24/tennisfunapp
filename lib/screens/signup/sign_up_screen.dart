@@ -12,38 +12,44 @@ class _SignUpScreenState extends State<SignUpScreen> {
   String password = '';
   String name = '';
   double ntrp = 2.0; // Default NTRP value
-  int age = 20; // Default age
+  String birthDate = ''; // 생년월일 필드
   String gender = 'MALE'; // Default gender
 
   bool _isFocused = false;
   final AuthService _authService = AuthService();
 
+  int selectedYear = DateTime.now().year;
+  int selectedMonth = DateTime.now().month;
+  int selectedDay = DateTime.now().day;
+
+  List<int> years = List<int>.generate(100, (int index) => DateTime.now().year - index);
+  List<int> months = List<int>.generate(12, (int index) => index + 1);
+  List<int> days = List<int>.generate(31, (int index) => index + 1);
+
   void _submitForm() async {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
+      birthDate = '$selectedYear-${selectedMonth.toString().padLeft(2, '0')}-${selectedDay.toString().padLeft(2, '0')}';
       try {
         var response = await _authService.register(
           email: email,
           name: name,
           password: password,
           ntrp: ntrp,
-          age: age,
+          birthDate: birthDate,
           gender: gender,
         );
 
-        // Add a null check on response and isSuccess
         if (response != null && response['isSuccess'] == true) {
           print("SUCCESS");
           Navigator.pushNamed(context, '/signupSuccess');
         } else {
-          // Handle the case where isSuccess is not true or response is null
           String message = response?['message'] ?? 'Unknown error occurred';
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text(message)),
           );
         }
       } catch (e) {
-        // Catch any other exceptions that might occur during the registration process
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Failed to register: $e')),
         );
@@ -95,10 +101,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   ),
                   const SizedBox(height: 20),
                   FormFieldLabel('NTRP'),
-                  NtrpSlider_singup(),
-                  FormFieldLabel('나이'),
+                  NtrpSlider_signup(),
+                  FormFieldLabel('생년월일'),
                   const SizedBox(height: 5),
-                  AgeFormField_signup(),
+                  BirthdateFormField_signup(), // 생년월일 입력 필드
                   const SizedBox(height: 70),
                   RegisterButton_signup(),
                 ],
@@ -118,6 +124,24 @@ class _SignUpScreenState extends State<SignUpScreen> {
           padding: EdgeInsets.only(left: 10),
           child: Label(label),
         ),
+        if (label == 'NTRP') // 조건문 추가
+          ...[
+            SizedBox(width: 8), // 아이콘과 텍스트 사이의 간격
+            Text(
+              'NTRP가 무엇인가요?',
+              style: TextStyle(
+                color: Colors.grey,
+                fontSize: 10,
+                fontFamily: 'Pretendard',
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            SizedBox(width: 4),
+            HelpIcon(
+              helpText:
+              'NTRP(National Tennis Rating Program)는 테니스 실력을 평가하는 척도입니다. 1.0부터 7.0까지 있으며, 숫자가 높을수록 실력이 좋습니다.',
+            ),
+          ],
       ],
     );
   }
@@ -149,24 +173,24 @@ class _SignUpScreenState extends State<SignUpScreen> {
     return Container(
         child: Center(
             child: ElevatedButton(
-      style: ElevatedButton.styleFrom(
-          minimumSize: Size(315, 30),
-          backgroundColor: Color(0xFF464EFF),
-          shape: RoundedRectangleBorder(
-              side: BorderSide(width: 1, color: Color(0xFF464EFF)),
-              borderRadius: BorderRadius.circular(20))),
-      onPressed: _submitForm,
-      child: Text('가입하기',
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 12,
-            fontFamily: 'Pretendard',
-            fontWeight: FontWeight.w700,
-            height: 0,
-            letterSpacing: -0.10,
-          )),
-    )));
+              style: ElevatedButton.styleFrom(
+                  minimumSize: Size(315, 30),
+                  backgroundColor: Color(0xFF464EFF),
+                  shape: RoundedRectangleBorder(
+                      side: BorderSide(width: 1, color: Color(0xFF464EFF)),
+                      borderRadius: BorderRadius.circular(20))),
+              onPressed: _submitForm,
+              child: Text('가입하기',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 12,
+                    fontFamily: 'Pretendard',
+                    fontWeight: FontWeight.w700,
+                    height: 0,
+                    letterSpacing: -0.10,
+                  )),
+            )));
   }
 
   DropdownButtonFormField<String> GenderDropdownButton_signup() {
@@ -190,60 +214,85 @@ class _SignUpScreenState extends State<SignUpScreen> {
     );
   }
 
-  Container AgeFormField_signup() {
+  Container BirthdateFormField_signup() {
     return Container(
-        width: 340,
-        height: 30,
-        decoration: ShapeDecoration(
-          shape: RoundedRectangleBorder(
-            side: BorderSide(width: 1, color: Color(0xFFD3D3D3)),
-            borderRadius: BorderRadius.circular(5),
-          ),
+      width: 340,
+      height: 30,
+      decoration: ShapeDecoration(
+        shape: RoundedRectangleBorder(
+          side: BorderSide(width: 1, color: Color(0xFFD3D3D3)),
+          borderRadius: BorderRadius.circular(5),
         ),
-        child: TextFormField(
-          keyboardType: TextInputType.number,
-          style: TextStyle(
-            color: Color(0xFF919191),
-            fontSize: 10,
-            fontFamily: 'Pretendard',
-            fontWeight: FontWeight.w400,
-            height: 1.0,
-            letterSpacing: -0.08,
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Expanded(
+            child: DropdownButtonFormField<int>(
+              value: selectedYear,
+              onChanged: (int? newValue) {
+                setState(() {
+                  selectedYear = newValue!;
+                });
+              },
+              items: years.map<DropdownMenuItem<int>>((int value) {
+                return DropdownMenuItem<int>(
+                  value: value,
+                  child: Text(value.toString()),
+                );
+              }).toList(),
+              decoration: InputDecoration(
+                labelText: selectedYear.toString(),
+                border: InputBorder.none,
+              ),
+            ),
           ),
-          textAlignVertical: TextAlignVertical(y: 1.0),
-          // 포커스를 받았을 때 상태 업데이트
-          onTap: () {
-            setState(() {
-              _isFocused = true;
-            });
-          },
-          // 포커스를 잃었을 때 상태 업데이트
-          onFieldSubmitted: (value) {
-            setState(() {
-              _isFocused = false;
-            });
-          },
-
-          onSaved: (value) => age = int.parse(value!),
-          decoration: InputDecoration(
-              hintText: '나이를 입력해주세요',
-              enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(5),
-                  borderSide: BorderSide(color: Colors.grey)),
-              focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(5),
-                  borderSide: BorderSide(color: Color(0xFF464EFF))),
-              errorBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(5),
-                  borderSide: BorderSide(color: Colors.red)),
-              focusedErrorBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(5),
-                  borderSide: BorderSide(color: Colors.red))),
-          validator: (value) => value!.isEmpty ? 'Please enter your age' : null,
-        ));
+          Expanded(
+            child: DropdownButtonFormField<int>(
+              value: selectedMonth,
+              onChanged: (int? newValue) {
+                setState(() {
+                  selectedMonth = newValue!;
+                });
+              },
+              items: months.map<DropdownMenuItem<int>>((int value) {
+                return DropdownMenuItem<int>(
+                  value: value,
+                  child: Text(value.toString()),
+                );
+              }).toList(),
+              decoration: InputDecoration(
+                labelText: selectedMonth.toString(),
+                border: InputBorder.none,
+              ),
+            ),
+          ),
+          Expanded(
+            child: DropdownButtonFormField<int>(
+              value: selectedDay,
+              onChanged: (int? newValue) {
+                setState(() {
+                  selectedDay = newValue!;
+                });
+              },
+              items: days.map<DropdownMenuItem<int>>((int value) {
+                return DropdownMenuItem<int>(
+                  value: value,
+                  child: Text(value.toString()),
+                );
+              }).toList(),
+              decoration: InputDecoration(
+                labelText: selectedDay.toString(),
+                border: InputBorder.none,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
-  Slider NtrpSlider_singup() {
+  Slider NtrpSlider_signup() {
     return Slider(
       activeColor: Color(0xFF464EFF),
       inactiveColor: Color(0xFFEDEDED),
@@ -292,7 +341,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
               _isFocused = false;
             });
           },
-
           onSaved: (value) => name = value!,
           decoration: InputDecoration(
               hintText: '이름을 입력해주세요',
@@ -309,7 +357,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   borderRadius: BorderRadius.circular(5),
                   borderSide: BorderSide(color: Colors.red))),
           validator: (value) =>
-              value!.isEmpty ? 'Please enter your name' : null,
+          value!.isEmpty ? 'Please enter your name' : null,
         ));
   }
 
@@ -417,6 +465,34 @@ class _SignUpScreenState extends State<SignUpScreen> {
         ),
       ),
       centerTitle: true,
+    );
+  }
+}
+
+class HelpIcon extends StatelessWidget {
+  final String helpText;
+
+  HelpIcon({required this.helpText});
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+      icon: Icon(Icons.help_outline),
+      onPressed: () {
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: Text('NTRP 설명'),
+            content: Text(helpText),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: Text('확인'),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }
