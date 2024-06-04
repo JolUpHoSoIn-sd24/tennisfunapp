@@ -11,7 +11,7 @@ class AuthService {
     required String name,
     required String password,
     required double ntrp,
-    required int age,
+    required String birthDate,
     required String gender,
   }) async {
     print(json.encode({
@@ -19,7 +19,7 @@ class AuthService {
       'name': name,
       'password': password,
       'ntrp': ntrp,
-      'age': age,
+      'birthDate': birthDate,
       'gender': gender,
     }));
     var url = Uri.parse('$_baseUrl/api/user/register');
@@ -31,7 +31,7 @@ class AuthService {
         'name': name,
         'password': password,
         'ntrp': ntrp,
-        'age': age,
+        'birthDate': birthDate,
         'gender': gender,
       }),
     );
