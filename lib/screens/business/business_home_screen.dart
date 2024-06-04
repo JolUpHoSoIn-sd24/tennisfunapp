@@ -1,7 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-
 import '../court/court_screen.dart';
+import 'business_mypage_screen.dart';
+import 'settlement_screen.dart'; // 정산하기 스크린 임포트
 
 class BusinessHomeScreen extends StatefulWidget {
   @override
@@ -13,8 +14,8 @@ class _BusinessHomeScreenState extends State<BusinessHomeScreen> {
 
   static final List<Widget> _widgetOptions = <Widget>[
     CourtsScreen(),
-    Center(child: Text('정산 화면')), // Placeholder screen for 정산
-    Center(child: Text('마이페이지 화면')), // Placeholder screen for 마이페이지
+    SettlementScreen(),
+    BusinessMyPageScreen(),
   ];
 
   void _onItemTapped(int index) {
@@ -27,7 +28,7 @@ class _BusinessHomeScreenState extends State<BusinessHomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('테니스 재밌슈'),
+        title: Text('테니스 재미쓰'),
       ),
       body: Center(
         child: _widgetOptions.elementAt(_selectedIndex),

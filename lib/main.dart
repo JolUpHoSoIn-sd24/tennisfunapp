@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:tennisfunapp/screens/business/business_home_screen.dart';
+import 'package:tennisfunapp/screens/business/business_mypage_screen.dart';
+import 'package:tennisfunapp/screens/business/settlement_screen.dart';
 import 'package:tennisfunapp/screens/home/home_screen.dart';
 import 'package:tennisfunapp/screens/login/login_screen.dart';
 import 'package:tennisfunapp/screens/match/request_matching_page.dart';
@@ -52,7 +54,9 @@ class MyApp extends StatelessWidget {
         '/login': (context) => LoginScreen(),
         '/match-request': (context) => const RequestMatchingPage(),
         '/business/home' : (context) => BusinessHomeScreen(),
-      },
+        '/business/settlement' : (context) =>SettlementScreen(),
+        '/business/myPage' : (context) => BusinessMyPageScreen(),
+       },
     );
   }
 }

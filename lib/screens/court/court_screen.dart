@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-
 import '../../components/court_card.dart';
 
 class CourtsScreen extends StatelessWidget {
@@ -15,8 +14,8 @@ class CourtsScreen extends StatelessWidget {
             children: <Widget>[
               Row(
                 children: <Widget>[
-                  Image.network(
-                    'https://via.placeholder.com/150', // Placeholder for court image
+                  Image.asset(
+                    'assets/images/ball.png', // ball.png 이미지 경로
                     width: 100,
                     height: 100,
                   ),
