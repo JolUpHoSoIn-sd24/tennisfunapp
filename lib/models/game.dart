@@ -6,6 +6,7 @@ class Game {
   final String state;
   final DateTime endTime;
   final Court court;
+  final Map<String, bool> paymentStatus;
 
   Game({
     required this.gameId,
@@ -15,6 +16,7 @@ class Game {
     required this.state,
     required this.endTime,
     required this.court,
+    required this.paymentStatus,
   });
 
   factory Game.fromJson(Map<String, dynamic> json) {
@@ -28,6 +30,7 @@ class Game {
       state: json['state'],
       endTime: DateTime.parse(json['endTime']),
       court: Court.fromJson(json['court']),
+      paymentStatus: Map<String, bool>.from(json['paymentStatus']),
     );
   }
 }
