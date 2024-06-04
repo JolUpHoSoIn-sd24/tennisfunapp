@@ -16,7 +16,7 @@ class _HomeScreenState extends State<HomeScreen> {
   static final List<Widget> _widgetOptions = <Widget>[
     MatchInfoScreen(),
     MatchHistoryScreen(),
-    AiRefereeStreaming().
+    AiRefereeStreaming(),
     TestScreen1(),
     TestScreen2(),
   ];
