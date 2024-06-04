@@ -1,32 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:tennisfunapp/services/match_api_service.dart';
 import 'package:tennisfunapp/services/user_api_service.dart';
+import 'package:tennisfunapp/services/payment_api_service.dart';
 import 'package:tennisfunapp/models/game.dart';
 import 'package:tennisfunapp/models/user.dart';
 
 class MatchHistoryScreen extends StatelessWidget {
   final MatchApiService matchApiService = MatchApiService();
   final UserApiService userApiService = UserApiService();
+  final PaymentApiService paymentApiService = PaymentApiService();
 
   @override
   Widget build(BuildContext context) {
-    Color highlightColor =
-        Colors.blue; // Centralize theme color for easy changes
+    Color highlightColor = Colors.blue;
 
     return Scaffold(
       appBar: AppBar(
         title: Text('마이페이지'),
-        //backgroundColor: highlightColor,
       ),
       body: FutureBuilder<Map<String, dynamic>>(
         future: Future.wait([
           matchApiService.fetchGameDetails(),
           userApiService.fetchUserDetails(),
-        ]).then((values) => {
-              'game': values[0],
-              'user': values[1],
-            }),
+        ]).then((values) => {'game': values[0], 'user': values[1]}),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(child: CircularProgressIndicator());
@@ -45,7 +43,7 @@ class MatchHistoryScreen extends StatelessWidget {
                     _buildUserDetails(user, highlightColor),
                     if (game != null) ...[
                       SizedBox(height: 24),
-                      _buildGameDetails(game, highlightColor),
+                      _buildGameDetails(game, highlightColor, context),
                       _buildPlayerDetails(game.players, highlightColor),
                     ] else ...[
                       Center(child: Text('매칭 결과가 없습니다.')),
@@ -70,63 +68,29 @@ class MatchHistoryScreen extends StatelessWidget {
         Text(
           '안녕하세요, ${user.name}님!',
           style: TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-            color: highlightColor,
-          ),
+              fontSize: 24, fontWeight: FontWeight.bold, color: highlightColor),
         ),
         SizedBox(height: 8),
-        RichText(
-          text: TextSpan(
-            children: [
-              TextSpan(
-                text: 'NTRP: ',
-                style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black),
-              ),
-              TextSpan(
-                text: '${user.ntrp}',
-                style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: highlightColor),
-              ),
-            ],
-          ),
-        ),
-        RichText(
-          text: TextSpan(
-            children: [
-              TextSpan(
-                text: '매너 점수: ',
-                style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black),
-              ),
-              TextSpan(
-                text: '${user.mannerScore}',
-                style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: highlightColor),
-              ),
-            ],
-          ),
-        ),
+        Text('NTRP: ${user.ntrp}',
+            style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: highlightColor)),
+        Text('매너 점수: ${user.mannerScore}',
+            style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: highlightColor)),
         SizedBox(height: 16),
       ],
     );
   }
 
-  Widget _buildGameDetails(Game game, Color highlightColor) {
+  Widget _buildGameDetails(
+      Game game, Color highlightColor, BuildContext context) {
     return Card(
       elevation: 4,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -136,13 +100,9 @@ class MatchHistoryScreen extends StatelessWidget {
               children: [
                 Icon(Icons.sports_tennis, color: highlightColor, size: 30),
                 SizedBox(width: 8),
-                Text(
-                  '매칭 결과',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
+                Text('매칭 결과',
+                    style:
+                        TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
               ],
             ),
             Divider(color: highlightColor, thickness: 2),
@@ -169,22 +129,35 @@ class MatchHistoryScreen extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 ElevatedButton(
-                    onPressed: () {
-                      // TODO: Implement payment functionality
+                    onPressed: () async {
+                      String? paymentUrl =
+                          await paymentApiService.initiatePayment();
+                      if (paymentUrl != null) {
+                        Uri url = Uri.parse(paymentUrl);
+                        if (await canLaunchUrl(url)) {
+                          await launchUrl(url,
+                              mode: LaunchMode.externalApplication);
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                              content:
+                                  Text('Unable to launch the payment URL')));
+                        }
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                            content: Text('Failed to initiate payment')));
+                      }
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: highlightColor,
-                      foregroundColor: Colors.white, // Text color
-                    ),
+                        backgroundColor: highlightColor,
+                        foregroundColor: Colors.white),
                     child: Text('결제하기')),
                 ElevatedButton(
                     onPressed: () {
-                      // TODO: Implement review functionality
+                      // Implement review functionality
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: highlightColor,
-                      foregroundColor: Colors.white, // Text color
-                    ),
+                        backgroundColor: highlightColor,
+                        foregroundColor: Colors.white),
                     child: Text('평가하기')),
               ],
             )
@@ -198,53 +171,25 @@ class MatchHistoryScreen extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SizedBox(height: 24),
-        Text(
-          '플레이어 정보',
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        SizedBox(height: 8),
-        ...players.map((player) {
-          return Card(
-            margin: EdgeInsets.symmetric(vertical: 8),
-            elevation: 4,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: ListTile(
-              leading: CircleAvatar(
-                child: Text(player.name[0]),
-                backgroundColor: highlightColor,
-              ),
-              title: Text(player.name),
-              subtitle: RichText(
-                text: TextSpan(
-                  text: '',
-                  children: [
-                    TextSpan(
-                      text: 'NTRP: ${player.ntrp} | ',
-                      style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: highlightColor),
-                    ),
-                    TextSpan(
-                      text: '나이: ${player.age} | ',
-                      style: TextStyle(fontSize: 16, color: Colors.black),
-                    ),
-                    TextSpan(
-                      text: '성별: ${player.gender}',
-                      style: TextStyle(fontSize: 16, color: Colors.black),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          );
-        }).toList(),
+        Text('플레이어 정보',
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+        ...players
+            .map((player) => Card(
+                  margin: EdgeInsets.symmetric(vertical: 8),
+                  elevation: 4,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10)),
+                  child: ListTile(
+                    leading: CircleAvatar(
+                        child: Text(player.name[0]),
+                        backgroundColor: highlightColor),
+                    title: Text(player.name),
+                    subtitle: Text(
+                        'NTRP: ${player.ntrp} | 나이: ${player.age} | 성별: ${player.gender}',
+                        style: TextStyle(fontWeight: FontWeight.bold)),
+                  ),
+                ))
+            .toList(),
         SizedBox(height: 16),
       ],
     );
