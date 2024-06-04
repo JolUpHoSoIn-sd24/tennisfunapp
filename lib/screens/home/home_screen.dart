@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:tennisfunapp/screens/match/match_history_screen.dart';
 import 'package:tennisfunapp/screens/match/match_info_screen.dart';
+import 'package:tennisfunapp/screens/referee/ai_referee_streaming.dart';
 import 'package:tennisfunapp/screens/test/test1.dart';
 import 'package:tennisfunapp/screens/test/test2.dart';
 
@@ -15,6 +16,7 @@ class _HomeScreenState extends State<HomeScreen> {
   static final List<Widget> _widgetOptions = <Widget>[
     MatchInfoScreen(),
     MatchHistoryScreen(),
+    AiRefereeStreaming().
     TestScreen1(),
     TestScreen2(),
   ];
@@ -36,6 +38,7 @@ class _HomeScreenState extends State<HomeScreen> {
           BottomNavigationBarItem(
               icon: Icon(Icons.sports_tennis), label: '매칭찾기'),
           BottomNavigationBarItem(icon: Icon(Icons.home), label: '마이페이지'),
+          BottomNavigationBarItem(icon: Icon(Icons.add_a_photo), label: '무인심판'),
         ],
         currentIndex: _selectedIndex,
         selectedItemColor: Colors.amber[800],
