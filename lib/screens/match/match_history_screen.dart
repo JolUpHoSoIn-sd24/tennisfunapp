@@ -44,7 +44,7 @@ class MatchHistoryScreen extends StatelessWidget {
                     if (game != null) ...[
                       SizedBox(height: 24),
                       _buildGameDetails(game, highlightColor, context),
-                      _buildPlayerDetails(game.players, highlightColor),
+                      _buildPlayerDetails(game, highlightColor),
                     ] else ...[
                       Center(child: Text('매칭 결과가 없습니다.')),
                     ],
@@ -167,29 +167,33 @@ class MatchHistoryScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildPlayerDetails(List<Player> players, Color highlightColor) {
+  Widget _buildPlayerDetails(Game game, Color highlightColor) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text('플레이어 정보',
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-        ...players
-            .map((player) => Card(
-                  margin: EdgeInsets.symmetric(vertical: 8),
-                  elevation: 4,
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10)),
-                  child: ListTile(
-                    leading: CircleAvatar(
-                        child: Text(player.name[0]),
-                        backgroundColor: highlightColor),
-                    title: Text(player.name),
-                    subtitle: Text(
-                        'NTRP: ${player.ntrp} | 나이: ${player.age} | 성별: ${player.gender}',
-                        style: TextStyle(fontWeight: FontWeight.bold)),
-                  ),
-                ))
-            .toList(),
+        ...game.players.map((player) {
+          bool hasPaid = game.paymentStatus[player.userId] ?? false;
+          return Card(
+            margin: EdgeInsets.symmetric(vertical: 8),
+            elevation: 4,
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            child: ListTile(
+              leading: CircleAvatar(
+                  child: Text(player.name[0]), backgroundColor: highlightColor),
+              title: Text(player.name),
+              subtitle: Text(
+                  'NTRP: ${player.ntrp} | 나이: ${player.age} | 성별: ${player.gender}',
+                  style: TextStyle(fontWeight: FontWeight.bold)),
+              trailing: Icon(
+                hasPaid ? Icons.check_circle : Icons.cancel,
+                color: hasPaid ? Colors.green : Colors.red,
+              ),
+            ),
+          );
+        }).toList(),
         SizedBox(height: 16),
       ],
     );
