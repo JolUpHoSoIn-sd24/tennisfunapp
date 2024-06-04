@@ -7,10 +7,52 @@ import 'package:tennisfunapp/services/payment_api_service.dart';
 import 'package:tennisfunapp/models/game.dart';
 import 'package:tennisfunapp/models/user.dart';
 
-class MatchHistoryScreen extends StatelessWidget {
+class MatchHistoryScreen extends StatefulWidget {
+  @override
+  _MatchHistoryScreenState createState() => _MatchHistoryScreenState();
+}
+
+class _MatchHistoryScreenState extends State<MatchHistoryScreen>
+    with WidgetsBindingObserver {
   final MatchApiService matchApiService = MatchApiService();
   final UserApiService userApiService = UserApiService();
   final PaymentApiService paymentApiService = PaymentApiService();
+  Game? game;
+  User? user;
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    loadData();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      loadData(); // Reload data when app is resumed
+    }
+  }
+
+  void loadData() async {
+    setState(() {
+      isLoading = true;
+    });
+    var gameDetails = await matchApiService.fetchGameDetails();
+    var userDetails = await userApiService.fetchUserDetails();
+    setState(() {
+      game = gameDetails;
+      user = userDetails;
+      isLoading = false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -20,21 +62,9 @@ class MatchHistoryScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text('마이페이지'),
       ),
-      body: FutureBuilder<Map<String, dynamic>>(
-        future: Future.wait([
-          matchApiService.fetchGameDetails(),
-          userApiService.fetchUserDetails(),
-        ]).then((values) => {'game': values[0], 'user': values[1]}),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Center(child: Text('에러가 발생했습니다.'));
-          } else if (snapshot.hasData) {
-            final game = snapshot.data!['game'] as Game?;
-            final user = snapshot.data!['user'] as User?;
-
-            return SingleChildScrollView(
+      body: isLoading
+          ? Center(child: CircularProgressIndicator())
+          : SingleChildScrollView(
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
@@ -43,20 +73,15 @@ class MatchHistoryScreen extends StatelessWidget {
                     _buildUserDetails(user, highlightColor),
                     if (game != null) ...[
                       SizedBox(height: 24),
-                      _buildGameDetails(game, highlightColor, context),
-                      _buildPlayerDetails(game, highlightColor),
+                      _buildGameDetails(game!, highlightColor, context),
+                      _buildPlayerDetails(game!, highlightColor),
                     ] else ...[
                       Center(child: Text('매칭 결과가 없습니다.')),
                     ],
                   ],
                 ),
               ),
-            );
-          } else {
-            return Center(child: Text('데이터가 없습니다.'));
-          }
-        },
-      ),
+            ),
     );
   }
 
