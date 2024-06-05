@@ -109,23 +109,35 @@ class _RequestMatchingPageState extends State<RequestMatchingPage>
                 MatchApiService matchApiService = MatchApiService();
                 Map<String, dynamic> requestData = {
                   "startTime": startDate != null && startTime != null
-                      ? DateTime(startDate!.year, startDate!.month, startDate!.day, startTime!.hour, startTime!.minute).toIso8601String()
+                      ? DateTime(
+                              startDate!.year,
+                              startDate!.month,
+                              startDate!.day,
+                              startTime!.hour,
+                              startTime!.minute)
+                          .toIso8601String()
                       : null,
                   "endTime": endDate != null && endTime != null
-                      ? DateTime(endDate!.year, endDate!.month, endDate!.day, endTime!.hour, endTime!.minute).toIso8601String()
+                      ? DateTime(endDate!.year, endDate!.month, endDate!.day,
+                              endTime!.hour, endTime!.minute)
+                          .toIso8601String()
                       : null,
                   "objective": objective.toString().split('.').last,
                   "isSingles": isSingles,
-                  "x": 126.887847771379,  // Provide correct values or obtain them dynamically
-                  "y": 37.5204279064529,  // Provide correct values or obtain them dynamically
+                  "x":
+                      126.887847771379, // Provide correct values or obtain them dynamically
+                  "y":
+                      37.5204279064529, // Provide correct values or obtain them dynamically
                   "maxDistance": double.tryParse(distanceController.text),
                   "dislikedCourts": dislikedCourtsController.text.split(','),
                   "minTime": int.tryParse(minTimeController.text),
                   "maxTime": int.tryParse(maxTimeController.text),
                   "isReserved": hasReservedCourt,
+                  "description": descriptionController.text,
                 };
 
-                var response = await matchApiService.createMatchRequest(requestData);
+                var response =
+                    await matchApiService.createMatchRequest(requestData);
                 if (response.statusCode == 201) {
                   // 성공 처리 로직
                   print("매칭 정보 등록 성공: ${response.body}");
@@ -453,7 +465,8 @@ class _RequestMatchingPageState extends State<RequestMatchingPage>
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.calendar_today, size: 16, color: Colors.black),
+                  const Icon(Icons.calendar_today,
+                      size: 16, color: Colors.black),
                   Text(
                     endDate == null
                         ? '종료 날짜 선택'
@@ -502,7 +515,6 @@ class _RequestMatchingPageState extends State<RequestMatchingPage>
   ListTile AvailableTime(BuildContext context) {
     return ListTile(
       contentPadding: EdgeInsets.zero,
-
       title: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
@@ -530,7 +542,8 @@ class _RequestMatchingPageState extends State<RequestMatchingPage>
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.calendar_today, size: 12, color: Colors.black),
+                  const Icon(Icons.calendar_today,
+                      size: 12, color: Colors.black),
                   Text(
                     startDate == null
                         ? '시작 날짜 선택'
