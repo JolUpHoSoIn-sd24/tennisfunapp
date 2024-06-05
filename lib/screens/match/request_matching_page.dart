@@ -59,6 +59,22 @@ class _RequestMatchingPageState extends State<RequestMatchingPage>
       body: ListView(
         // padding: EdgeInsets.all(8),
         children: [
+          Container(
+            padding: EdgeInsets.all(16),
+            //color: Color(0xFFEDEDED),
+            child: Text(
+              '매칭 정보를 입력해주세요.',
+              style: TextStyle(
+                color: Colors.black,
+                fontSize: 16,
+                fontFamily: 'Pretendard',
+                fontWeight: FontWeight.w700,
+                height: 1.5,
+                letterSpacing: -0.10,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ),
           FullWidthThinBox(),
           Label('희망시간'),
           AvailableTime(context),
