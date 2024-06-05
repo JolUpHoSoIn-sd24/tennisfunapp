@@ -22,7 +22,7 @@ class _RequestMatchingPageState extends State<RequestMatchingPage>
   MatchObjective objective = MatchObjective.FUN;
   bool isFocused = false;
   bool hasReservedCourt = false;
-  RangeValues runningTimeRange = const RangeValues(0, 240);
+  RangeValues runningTimeRange = const RangeValues(30, 240);
   DateTime? startDate = DateTime.now();
   TimeOfDay? startTime = TimeOfDay.now();
   DateTime? endDate = DateTime.now().add(Duration(days: 1));
@@ -88,13 +88,6 @@ class _RequestMatchingPageState extends State<RequestMatchingPage>
           // Description(),
 
           FullWidthThinBox(),
-          CourtIsReserved(),
-          if (hasReservedCourt) ...[
-            ReservationCourtID(),
-            RentalCost(),
-            ReservedDate(context),
-            ReservedTime(),
-          ],
           Padding(
             padding: EdgeInsets.symmetric(vertical: 20),
             child: ElevatedButton(
@@ -637,9 +630,9 @@ class _RequestMatchingPageState extends State<RequestMatchingPage>
       activeColor: Color(0xFF464EFF),
       inactiveColor: Color(0xFFEDEDED),
       values: runningTimeRange,
-      min: 0,
+      min: 30,
       max: 240,
-      divisions: 8,
+      divisions: 7,
       labels: RangeLabels(
         runningTimeRange.start.round().toString(),
         runningTimeRange.end.round().toString(),
@@ -800,6 +793,7 @@ class _RequestMatchingPageState extends State<RequestMatchingPage>
                     fontFamily: 'Pretendard',
                     fontWeight: FontWeight.w400,
                     letterSpacing: -0.10,
+                    color: Colors.grey, // 텍스트 색상 회색으로 설정하여 비활성화처럼 보이게 함
                   ))),
         ],
         isSelected: isSinglesbutton,
@@ -814,9 +808,10 @@ class _RequestMatchingPageState extends State<RequestMatchingPage>
               isSinglesbutton[1] = false;
               isSingles = true;
             } else {
-              isSinglesbutton[0] = false;
-              isSinglesbutton[1] = true;
-              isSingles = false;
+              // 복식 버튼은 비활성화 상태이므로 선택 불가
+              // isSinglesbutton[0] = false;
+              // isSinglesbutton[1] = true;
+              // isSingles = false;
             }
           });
         },
