@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:tennisfunapp/screens/etc/terms_screen.dart';
+import 'package:tennisfunapp/screens/login/login_screen.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:tennisfunapp/services/match_api_service.dart';
@@ -401,11 +404,32 @@ class MenuOptions extends StatelessWidget {
     return Column(
       children: options.map((option) {
         return ListTile(
-          title: Text(option,
-              style: TextStyle(color: Theme.of(context).primaryColor)),
+          title: Text(
+            option,
+            style: TextStyle(
+              color: Colors.black,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
           trailing: Icon(Icons.arrow_forward_ios,
               color: Theme.of(context).colorScheme.secondary),
-          onTap: () {},
+          onTap: () async {
+            if (option == '이용 약관 및 개인정보 처리방침') {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => TermsScreen()),
+              );
+            } else if (option == '로그아웃') {
+              SharedPreferences prefs = await SharedPreferences.getInstance();
+              await prefs.remove('sessionCookie'); // 세션 쿠키 초기화
+
+              Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(builder: (context) => LoginScreen()),
+                (Route<dynamic> route) => false,
+              );
+            }
+          },
         );
       }).toList(),
     );
