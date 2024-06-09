@@ -146,11 +146,8 @@ class _MatchHistoryScreenState extends State<MatchHistoryScreen>
                       Icons.thumb_up, '매너 점수', '${user.mannerScore}'),
                   _buildUserInfoRow(
                       Icons.person, '성별', _translateGender(user.gender)),
-                  _buildUserInfoRow(
-                    Icons.email,
-                    '이메일',
-                    user.emailId,
-                  ),
+                  _buildUserInfoRow(Icons.email, '이메일', user.emailId,
+                      isEmail: true),
                 ],
               ),
             ),
@@ -160,7 +157,8 @@ class _MatchHistoryScreenState extends State<MatchHistoryScreen>
     );
   }
 
-  Widget _buildUserInfoRow(IconData icon, String label, String value) {
+  Widget _buildUserInfoRow(IconData icon, String label, String value,
+      {bool isEmail = false}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4.0),
       child: Row(
@@ -169,8 +167,15 @@ class _MatchHistoryScreenState extends State<MatchHistoryScreen>
           SizedBox(width: 8),
           Text('$label: ', style: TextStyle(fontSize: 18, color: Colors.black)),
           Expanded(
-            child: Text(value,
-                style: TextStyle(fontSize: 18, color: Colors.black)),
+            child: Tooltip(
+              message: isEmail ? value : '', // Ensure message is provided
+              child: Text(
+                value,
+                style: TextStyle(fontSize: 18, color: Colors.black),
+                overflow: isEmail ? TextOverflow.ellipsis : null,
+                maxLines: isEmail ? 1 : null,
+              ),
+            ),
           ),
         ],
       ),
@@ -280,6 +285,7 @@ class _MatchHistoryScreenState extends State<MatchHistoryScreen>
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
         ...game.players.map((player) {
           bool hasPaid = game.paymentStatus[player.userId] ?? false;
+          bool hasFeedback = player.feedback ?? false;
           return Card(
             margin: EdgeInsets.symmetric(vertical: 8),
             elevation: 4,
@@ -300,17 +306,41 @@ class _MatchHistoryScreenState extends State<MatchHistoryScreen>
               trailing: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(
-                    hasPaid ? Icons.check_circle : Icons.cancel,
-                    color: hasPaid ? Colors.green : Colors.red,
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        hasPaid ? Icons.check_circle : Icons.cancel,
+                        color: hasPaid ? Colors.green : Colors.red,
+                      ),
+                      SizedBox(width: 4),
+                      Text(
+                        hasPaid ? '결제 완료' : '미결제',
+                        style: TextStyle(
+                          color: hasPaid ? Colors.green : Colors.red,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
                   ),
-                  Text(
-                    hasPaid ? '결제 완료' : '미결제',
-                    style: TextStyle(
-                      color: hasPaid ? Colors.green : Colors.red,
-                      fontSize: 12,
-                    ),
-                  )
+                  SizedBox(height: 4),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        hasFeedback ? Icons.feedback : Icons.feedback_outlined,
+                        color: hasFeedback ? Colors.green : Colors.red,
+                      ),
+                      SizedBox(width: 4),
+                      Text(
+                        hasFeedback ? '피드백 완료' : '피드백 미완료',
+                        style: TextStyle(
+                          color: hasFeedback ? Colors.green : Colors.red,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
+                  ),
                 ],
               ),
             ),

@@ -41,6 +41,7 @@ class Player {
   final double ntrp;
   final int age;
   final String gender;
+  final bool feedback; // Added feedback attribute
 
   Player({
     required this.userId,
@@ -48,6 +49,7 @@ class Player {
     required this.ntrp,
     required this.age,
     required this.gender,
+    required this.feedback,
   });
 
   factory Player.fromJson(Map<String, dynamic> json) {
@@ -57,6 +59,7 @@ class Player {
       ntrp: json['ntrp'],
       age: json['age'],
       gender: json['gender'],
+      feedback: json['feedback'],
     );
   }
 }
