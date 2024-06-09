@@ -289,7 +289,7 @@ class _MatchHistoryScreenState extends State<MatchHistoryScreen>
                             ? highlightColor
                             : Colors.grey,
                         foregroundColor: Colors.white),
-                    child: Text('평가하기')),
+                    child: Text('피드백하기')),
               ],
             )
           ],
