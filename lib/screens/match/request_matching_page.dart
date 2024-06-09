@@ -27,7 +27,8 @@ class _RequestMatchingPageState extends State<RequestMatchingPage>
   DateTime? startDate = DateTime.now();
   TimeOfDay? startTime = TimeOfDay.now();
   DateTime? endDate = DateTime.now();
-  TimeOfDay? endTime = TimeOfDay.now();
+  TimeOfDay? endTime =
+      TimeOfDay.now().replacing(minute: TimeOfDay.now().minute + 1);
   String money = '';
   String message = '';
   TextEditingController userIdController = TextEditingController();
@@ -74,9 +75,10 @@ class _RequestMatchingPageState extends State<RequestMatchingPage>
         endTime!.hour,
         endTime!.minute,
       );
-      if (startDateTime.isAfter(endDateTime)) {
+      if (startDateTime.isAfter(endDateTime) ||
+          startDateTime.isAtSameMomentAs(endDateTime)) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("시작 시간은 종료 시간보다 이후일 수 없습니다.")),
+          SnackBar(content: Text("시작 시간은 종료 시간과 같거나 이후일 수 없습니다.")),
         );
       } else {
         setState(() {
@@ -118,9 +120,10 @@ class _RequestMatchingPageState extends State<RequestMatchingPage>
         picked.hour,
         picked.minute,
       );
-      if (endDateTime.isBefore(startDateTime)) {
+      if (endDateTime.isBefore(startDateTime) ||
+          endDateTime.isAtSameMomentAs(startDateTime)) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("종료 시간은 시작 시간보다 이전일 수 없습니다.")),
+          SnackBar(content: Text("종료 시간은 시작 시간과 같거나 이전일 수 없습니다.")),
         );
       } else {
         setState(() {
