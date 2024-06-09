@@ -73,7 +73,7 @@ class _MatchHistoryScreenState extends State<MatchHistoryScreen>
       case 'INPLAY':
         return '경기 진행 중 - 경기 완료 후 평가하세요';
       case 'AWAIT_FEEDBACK':
-        return '피드백 대기 중 - 상대의 평가를 기다리는 중';
+        return '피드백 대기 중 - 평가를 기다리는 중';
       default:
         return state;
     }
@@ -258,11 +258,12 @@ class _MatchHistoryScreenState extends State<MatchHistoryScreen>
                         foregroundColor: Colors.white),
                     child: Text('결제하기')),
                 ElevatedButton(
-                    onPressed: game.players
-                                .firstWhere(
-                                    (player) => player.userId == user?.id)
-                                .feedback ==
-                            false
+                    onPressed: game.state != 'PREGAME' &&
+                            game.players
+                                    .firstWhere(
+                                        (player) => player.userId == user?.id)
+                                    .feedback ==
+                                false
                         ? () {
                             Navigator.push(
                               context,
@@ -272,11 +273,12 @@ class _MatchHistoryScreenState extends State<MatchHistoryScreen>
                           }
                         : null,
                     style: ElevatedButton.styleFrom(
-                        backgroundColor: game.players
-                                    .firstWhere(
-                                        (player) => player.userId == user?.id)
-                                    .feedback ==
-                                false
+                        backgroundColor: game.state != 'PREGAME' &&
+                                game.players
+                                        .firstWhere((player) =>
+                                            player.userId == user?.id)
+                                        .feedback ==
+                                    false
                             ? highlightColor
                             : Colors.grey,
                         foregroundColor: Colors.white),
@@ -394,12 +396,7 @@ class _MatchHistoryScreenState extends State<MatchHistoryScreen>
 class MenuOptions extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    List<String> options = [
-      'Edit Account Info',
-      'View and Change Ongoing Matches',
-      'View and Change Match Status',
-      'Terms of Use of TennisFun'
-    ];
+    List<String> options = ['경기 기록 보기', '이용 약관 및 개인정보 처리방침', '로그아웃'];
 
     return Column(
       children: options.map((option) {
