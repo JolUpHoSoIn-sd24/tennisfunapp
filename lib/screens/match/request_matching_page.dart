@@ -202,8 +202,8 @@ class _RequestMatchingPageState extends State<RequestMatchingPage>
               final DateTime? picked = await showDatePicker(
                 context: context,
                 initialDate: endDate ?? DateTime.now(),
-                firstDate: DateTime(2000),
-                lastDate: DateTime(2100),
+                firstDate: DateTime.now(),
+                lastDate: DateTime.now().add(Duration(days: 7)),
               );
               if (picked != null && picked != endDate) {
                 setState(() {
@@ -452,8 +452,8 @@ class _RequestMatchingPageState extends State<RequestMatchingPage>
               final DateTime? picked = await showDatePicker(
                 context: context,
                 initialDate: endDate ?? DateTime.now(),
-                firstDate: DateTime(2000),
-                lastDate: DateTime(2100),
+                firstDate: DateTime.now(),
+                lastDate: DateTime.now().add(Duration(days: 7)),
               );
               if (picked != null && picked != endDate) {
                 setState(() {
@@ -527,8 +527,8 @@ class _RequestMatchingPageState extends State<RequestMatchingPage>
               final DateTime? picked = await showDatePicker(
                 context: context,
                 initialDate: startDate ?? DateTime.now(),
-                firstDate: DateTime(2000),
-                lastDate: DateTime(2100),
+                firstDate: DateTime.now(),
+                lastDate: DateTime.now().add(Duration(days: 7)),
               );
               if (picked != null && picked != startDate) {
                 setState(() {
