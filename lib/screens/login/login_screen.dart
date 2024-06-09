@@ -20,7 +20,8 @@ class _LoginScreenState extends State<LoginScreen> {
       _formKey.currentState!.save();
       var result;
       if (_isBusinessUser) {
-        result = await AuthService().businessLogin(email: _email, password: _password);
+        result = await AuthService()
+            .businessLogin(email: _email, password: _password);
       } else {
         result = await AuthService().login(email: _email, password: _password);
       }
@@ -32,7 +33,8 @@ class _LoginScreenState extends State<LoginScreen> {
           Navigator.pushReplacementNamed(context, '/home');
         }
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(result['message'])));
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(result['message'])));
       }
     }
   }
@@ -106,7 +108,8 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
         ),
         onPressed: () {
-          Navigator.push(context, MaterialPageRoute(builder: (context) => SignUpScreen()));
+          Navigator.push(
+              context, MaterialPageRoute(builder: (context) => SignUpScreen()));
         },
         child: Text(
           '회원가입',
@@ -191,9 +194,7 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
         validator: (value) {
           if (value == null || value.isEmpty) {
-            return 'Please enter your password';
-          } else if (value.length < 6) {
-            return 'Password must be at least 6 characters';
+            return '비밀번호가 올바르지 않습니다.';
           }
           return null;
         },
@@ -220,7 +221,7 @@ class _LoginScreenState extends State<LoginScreen> {
         decoration: InputDecoration(
           filled: true,
           fillColor: _isFocused ? Colors.white : Color(0xFFEDEDED),
-          hintText: '아이디를 입력해주세요',
+          hintText: '이메일을 입력해주세요',
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(20),
             borderSide: BorderSide(color: Color(0xFFEDEDED)),
@@ -240,9 +241,9 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
         validator: (value) {
           if (value == null || value.isEmpty) {
-            return 'Please enter your email';
+            return '이메일이 올바르지 않습니다.';
           } else if (!value.contains('@')) {
-            return 'Please enter a valid email';
+            return '이메일이 올바르지 않습니다.';
           }
           return null;
         },

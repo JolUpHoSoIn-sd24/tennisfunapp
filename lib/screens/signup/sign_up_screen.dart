@@ -16,20 +16,23 @@ class _SignUpScreenState extends State<SignUpScreen> {
   String gender = 'MALE'; // Default gender
 
   bool _isFocused = false;
+
   final AuthService _authService = AuthService();
 
   int selectedYear = DateTime.now().year;
   int selectedMonth = DateTime.now().month;
   int selectedDay = DateTime.now().day;
 
-  List<int> years = List<int>.generate(100, (int index) => DateTime.now().year - index);
+  List<int> years =
+      List<int>.generate(100, (int index) => DateTime.now().year - index);
   List<int> months = List<int>.generate(12, (int index) => index + 1);
   List<int> days = List<int>.generate(31, (int index) => index + 1);
 
   void _submitForm() async {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
-      birthDate = '$selectedYear-${selectedMonth.toString().padLeft(2, '0')}-${selectedDay.toString().padLeft(2, '0')}';
+      birthDate =
+          '$selectedYear-${selectedMonth.toString().padLeft(2, '0')}-${selectedDay.toString().padLeft(2, '0')}';
       try {
         var response = await _authService.register(
           email: email,
@@ -126,22 +129,42 @@ class _SignUpScreenState extends State<SignUpScreen> {
         ),
         if (label == 'NTRP') // 조건문 추가
           ...[
-            SizedBox(width: 8), // 아이콘과 텍스트 사이의 간격
-            Text(
-              'NTRP가 무엇인가요?',
-              style: TextStyle(
-                color: Colors.grey,
-                fontSize: 10,
-                fontFamily: 'Pretendard',
-                fontWeight: FontWeight.bold,
-              ),
+          SizedBox(width: 8), // 아이콘과 텍스트 사이의 간격
+          Text(
+            'NTRP가 무엇인가요?',
+            style: TextStyle(
+              color: Colors.grey,
+              fontSize: 10,
+              fontFamily: 'Pretendard',
+              fontWeight: FontWeight.bold,
             ),
-            SizedBox(width: 4),
-            HelpIcon(
-              helpText:
-              'NTRP(National Tennis Rating Program)는 테니스 실력을 평가하는 척도입니다. 1.0부터 7.0까지 있으며, 숫자가 높을수록 실력이 좋습니다.',
+          ),
+          SizedBox(width: 4),
+          HelpIcon(
+            dialogTitle: 'NTRP란?',
+            helpText:
+                'NTRP(National Tennis Rating Program)는 테니스 실력을 평가하는 척도입니다. 1.0부터 7.0까지 있으며, 숫자가 높을수록 실력이 좋습니다.',
+          ),
+        ],
+        if (label == '비밀번호') // 조건문 추가
+          ...[
+          SizedBox(width: 8), // 아이콘과 텍스트 사이의 간격
+          Text(
+            '비밀번호 형식이 무엇인가요?',
+            style: TextStyle(
+              color: Colors.grey,
+              fontSize: 10,
+              fontFamily: 'Pretendard',
+              fontWeight: FontWeight.bold,
             ),
-          ],
+          ),
+          SizedBox(width: 4),
+          HelpIcon(
+            dialogTitle: '비밀번호 형식',
+            helpText:
+                '비밀번호는 최소 8자 이상이어야하며, 소문자, 대문자, 숫자, 특수문자(@#\$%^&+=)를 각각 적어도 하나씩 포함해야 합니다.',
+          ),
+        ],
       ],
     );
   }
@@ -173,24 +196,24 @@ class _SignUpScreenState extends State<SignUpScreen> {
     return Container(
         child: Center(
             child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                  minimumSize: Size(315, 30),
-                  backgroundColor: Color(0xFF464EFF),
-                  shape: RoundedRectangleBorder(
-                      side: BorderSide(width: 1, color: Color(0xFF464EFF)),
-                      borderRadius: BorderRadius.circular(20))),
-              onPressed: _submitForm,
-              child: Text('가입하기',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 12,
-                    fontFamily: 'Pretendard',
-                    fontWeight: FontWeight.w700,
-                    height: 0,
-                    letterSpacing: -0.10,
-                  )),
-            )));
+      style: ElevatedButton.styleFrom(
+          minimumSize: Size(315, 30),
+          backgroundColor: Color(0xFF464EFF),
+          shape: RoundedRectangleBorder(
+              side: BorderSide(width: 1, color: Color(0xFF464EFF)),
+              borderRadius: BorderRadius.circular(20))),
+      onPressed: _submitForm,
+      child: Text('가입하기',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 12,
+            fontFamily: 'Pretendard',
+            fontWeight: FontWeight.w700,
+            height: 0,
+            letterSpacing: -0.10,
+          )),
+    )));
   }
 
   DropdownButtonFormField<String> GenderDropdownButton_signup() {
@@ -356,8 +379,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
               focusedErrorBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(5),
                   borderSide: BorderSide(color: Colors.red))),
-          validator: (value) =>
-          value!.isEmpty ? 'Please enter your name' : null,
+          validator: (value) => value!.isEmpty ? '이름 형식이 올바르지 않습니다' : null,
         ));
   }
 
@@ -409,9 +431,20 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   borderRadius: BorderRadius.circular(5),
                   borderSide: BorderSide(color: Colors.red))),
           obscureText: true,
-          validator: (value) => value!.length < 8
-              ? 'Password must be at least 8 characters'
-              : null,
+          // validator: (value) => value!.length < 8
+          //     ? 'Password must be at least 8 characters'
+          //     : null,
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return '비밀번호 형식이 올바르지 않습니다.';
+            }
+            final regex = RegExp(
+                r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@#$%^&+=])[A-Za-z\d@#$%^&+=]{8,}$');
+            if (!regex.hasMatch(value)) {
+              return '비밀번호 형식이 올바르지 않습니다.';
+            }
+            return null;
+          },
         ));
   }
 
@@ -445,7 +478,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 borderRadius: BorderRadius.circular(5),
                 borderSide: BorderSide(color: Colors.red))),
         validator: (value) => value!.isEmpty || !value.contains('@')
-            ? 'Enter a valid email'
+            ? '이메일 형식이 올바르지 않습니다.'
             : null,
       ),
     );
@@ -471,8 +504,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
 class HelpIcon extends StatelessWidget {
   final String helpText;
+  final String dialogTitle;
 
-  HelpIcon({required this.helpText});
+  const HelpIcon({
+    Key? key,
+    required this.helpText,
+    required this.dialogTitle, // 추가된 dialogTitle 매개변수
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -482,7 +520,7 @@ class HelpIcon extends StatelessWidget {
         showDialog(
           context: context,
           builder: (context) => AlertDialog(
-            title: Text('NTRP 설명'),
+            title: Text(dialogTitle),
             content: Text(helpText),
             actions: [
               TextButton(
