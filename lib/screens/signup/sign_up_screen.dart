@@ -19,20 +19,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   final AuthService _authService = AuthService();
 
-  int selectedYear = DateTime.now().year;
-  int selectedMonth = DateTime.now().month;
-  int selectedDay = DateTime.now().day;
-
-  List<int> years =
-      List<int>.generate(100, (int index) => DateTime.now().year - index);
-  List<int> months = List<int>.generate(12, (int index) => index + 1);
-  List<int> days = List<int>.generate(31, (int index) => index + 1);
+  DateTime selectedDate = DateTime.now();
 
   void _submitForm() async {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
       birthDate =
-          '$selectedYear-${selectedMonth.toString().padLeft(2, '0')}-${selectedDay.toString().padLeft(2, '0')}';
+          '${selectedDate.year}-${selectedDate.month.toString().padLeft(2, '0')}-${selectedDate.day.toString().padLeft(2, '0')}';
       try {
         var response = await _authService.register(
           email: email,
@@ -57,6 +50,20 @@ class _SignUpScreenState extends State<SignUpScreen> {
           SnackBar(content: Text('Failed to register: $e')),
         );
       }
+    }
+  }
+
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: selectedDate,
+      firstDate: DateTime(1900),
+      lastDate: DateTime.now(),
+    );
+    if (picked != null && picked != selectedDate) {
+      setState(() {
+        selectedDate = picked;
+      });
     }
   }
 
@@ -107,7 +114,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   NtrpSlider_signup(),
                   FormFieldLabel('생년월일'),
                   const SizedBox(height: 5),
-                  BirthdateFormField_signup(), // 생년월일 입력 필드
+                  GestureDetector(
+                    onTap: () => _selectDate(context),
+                    child: AbsorbPointer(
+                      child: BirthdateFormField_signup(),
+                    ),
+                  ),
                   const SizedBox(height: 70),
                   RegisterButton_signup(),
                 ],
@@ -247,70 +259,18 @@ class _SignUpScreenState extends State<SignUpScreen> {
           borderRadius: BorderRadius.circular(5),
         ),
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Expanded(
-            child: DropdownButtonFormField<int>(
-              value: selectedYear,
-              onChanged: (int? newValue) {
-                setState(() {
-                  selectedYear = newValue!;
-                });
-              },
-              items: years.map<DropdownMenuItem<int>>((int value) {
-                return DropdownMenuItem<int>(
-                  value: value,
-                  child: Text(value.toString()),
-                );
-              }).toList(),
-              decoration: InputDecoration(
-                labelText: selectedYear.toString(),
-                border: InputBorder.none,
-              ),
-            ),
+      child: Center(
+        child: Text(
+          "${selectedDate.year}-${selectedDate.month.toString().padLeft(2, '0')}-${selectedDate.day.toString().padLeft(2, '0')}",
+          style: TextStyle(
+            color: Color(0xFF919191),
+            fontSize: 10,
+            fontFamily: 'Pretendard',
+            fontWeight: FontWeight.w400,
+            height: 1.0,
+            letterSpacing: -0.08,
           ),
-          Expanded(
-            child: DropdownButtonFormField<int>(
-              value: selectedMonth,
-              onChanged: (int? newValue) {
-                setState(() {
-                  selectedMonth = newValue!;
-                });
-              },
-              items: months.map<DropdownMenuItem<int>>((int value) {
-                return DropdownMenuItem<int>(
-                  value: value,
-                  child: Text(value.toString()),
-                );
-              }).toList(),
-              decoration: InputDecoration(
-                labelText: selectedMonth.toString(),
-                border: InputBorder.none,
-              ),
-            ),
-          ),
-          Expanded(
-            child: DropdownButtonFormField<int>(
-              value: selectedDay,
-              onChanged: (int? newValue) {
-                setState(() {
-                  selectedDay = newValue!;
-                });
-              },
-              items: days.map<DropdownMenuItem<int>>((int value) {
-                return DropdownMenuItem<int>(
-                  value: value,
-                  child: Text(value.toString()),
-                );
-              }).toList(),
-              decoration: InputDecoration(
-                labelText: selectedDay.toString(),
-                border: InputBorder.none,
-              ),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -431,9 +391,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   borderRadius: BorderRadius.circular(5),
                   borderSide: BorderSide(color: Colors.red))),
           obscureText: true,
-          // validator: (value) => value!.length < 8
-          //     ? 'Password must be at least 8 characters'
-          //     : null,
           validator: (value) {
             if (value == null || value.isEmpty) {
               return '비밀번호 형식이 올바르지 않습니다.';
