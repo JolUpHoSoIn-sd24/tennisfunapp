@@ -33,12 +33,12 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
 
       if (response['isSuccess']) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('평가가 성공적으로 등록되었습니다.')),
+          const SnackBar(content: Text('평가가 성공적으로 등록되었습니다.')),
         );
         Navigator.pop(context); // Go back to the previous screen
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('평가 등록에 실패했습니다. 다시 시도해 주세요.')),
+          const SnackBar(content: Text('평가 등록에 실패했습니다. 다시 시도해 주세요.')),
         );
       }
     }
@@ -47,7 +47,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('게임 평가')),
+      appBar: AppBar(title: const Text('게임 평가')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
@@ -56,13 +56,14 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('경기 결과', style: TextStyle(fontSize: 18)),
+                const Text('경기 결과', style: TextStyle(fontSize: 18)),
                 Row(
                   children: [
                     Expanded(
                       child: TextFormField(
                         keyboardType: TextInputType.number,
-                        decoration: InputDecoration(
+                        textAlign: TextAlign.center,
+                        decoration: const InputDecoration(
                           hintText: '사용자 점수',
                         ),
                         validator: (value) {
@@ -76,11 +77,12 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                         },
                       ),
                     ),
-                    Text(':'),
+                    const Text(':'),
                     Expanded(
                       child: TextFormField(
                         keyboardType: TextInputType.number,
-                        decoration: InputDecoration(
+                        textAlign: TextAlign.center,
+                        decoration: const InputDecoration(
                           hintText: '상대방 점수',
                         ),
                         validator: (value) {
@@ -96,8 +98,8 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                     ),
                   ],
                 ),
-                SizedBox(height: 16),
-                Text('상대 매너 온도', style: TextStyle(fontSize: 18)),
+                const SizedBox(height: 16),
+                const Text('상대 매너 온도', style: TextStyle(fontSize: 18)),
                 DropdownButtonFormField<MannersRating>(
                   value: mannersRating,
                   items: MannersRating.values.map((rating) {
@@ -115,8 +117,8 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                     mannersRating = value!;
                   },
                 ),
-                SizedBox(height: 16),
-                Text('상대 NTRP 평가', style: TextStyle(fontSize: 18)),
+                const SizedBox(height: 16),
+                const Text('상대 NTRP 평가', style: TextStyle(fontSize: 18)),
                 Slider(
                   value: suggestedNTRP,
                   min: 1.0,
@@ -129,11 +131,28 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                     });
                   },
                 ),
-                SizedBox(height: 32),
+                const SizedBox(height: 16),
+                const Text('코멘트', style: TextStyle(fontSize: 18)),
+                TextFormField(
+                  maxLines: 3,
+                  decoration: const InputDecoration(
+                    hintText: '코멘트를 입력하세요',
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return '코멘트를 입력하세요';
+                    }
+                    return null;
+                  },
+                  onSaved: (value) {
+                    comments = value!;
+                  },
+                ),
+                const SizedBox(height: 32),
                 Center(
                   child: ElevatedButton(
                     onPressed: _submitFeedback,
-                    child: Text('피드백 저장하기'),
+                    child: const Text('피드백 저장하기'),
                   ),
                 ),
               ],
