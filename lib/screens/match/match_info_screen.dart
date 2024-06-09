@@ -1,6 +1,6 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_card_swiper/flutter_card_swiper.dart';
-import 'package:http/src/response.dart';
 import 'package:tennisfunapp/models/candidate_model.dart';
 import 'package:tennisfunapp/components/candidate_card.dart';
 import 'package:tennisfunapp/components/prompt_card.dart';
@@ -10,12 +10,13 @@ class MatchInfoScreen extends StatefulWidget {
   const MatchInfoScreen({Key? key}) : super(key: key);
 
   @override
-  _TennisMatchScreenState createState() => _TennisMatchScreenState();
+  _MatchInfoScreenState createState() => _MatchInfoScreenState();
 }
 
-class _TennisMatchScreenState extends State<MatchInfoScreen> {
+class _MatchInfoScreenState extends State<MatchInfoScreen> {
   final CardSwiperController controller = CardSwiperController();
   final MatchApiService matchApiService = MatchApiService();
+  Timer? pollingTimer;
 
   final List<CandidateModel> prompt = [
     CandidateModel(
@@ -62,8 +63,11 @@ class _TennisMatchScreenState extends State<MatchInfoScreen> {
             ),
           ];
         });
+        // 시작 polling
+        startPolling();
       } else {
         // 결과가 빈 배열이 아닌 경우 (매치 결과 표시)
+        stopPolling(); // 매칭 결과가 생기면 polling 중지
         List<CandidateModel> candidates = matchResults?.map((result) {
               final opponent = result['opponent'];
               final matchDetails = result['matchDetails'];
@@ -95,9 +99,22 @@ class _TennisMatchScreenState extends State<MatchInfoScreen> {
     }
   }
 
+  void startPolling() {
+    pollingTimer?.cancel();
+    pollingTimer = Timer.periodic(Duration(seconds: 2), (timer) {
+      initializeMatchInfo();
+    });
+  }
+
+  void stopPolling() {
+    pollingTimer?.cancel();
+    pollingTimer = null;
+  }
+
   @override
   void dispose() {
     controller.dispose();
+    stopPolling();
     super.dispose();
   }
 
