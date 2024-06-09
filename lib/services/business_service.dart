@@ -10,13 +10,13 @@ class BusinessService {
     var response = await http.get(
       url,
       headers: {
-        'Content-Type': 'application/json',
+        'Content-Type': 'application/json; charset=UTF-8',
         'Cookie': await _getSessionCookie(),
       },
     );
 
     if (response.statusCode == 200) {
-      Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+      Map<String, dynamic> jsonResponse = jsonDecode(utf8.decode(response.bodyBytes));
       if (jsonResponse['isSuccess'] == true) {
         return jsonResponse['result'];
       } else {
@@ -32,13 +32,13 @@ class BusinessService {
     var response = await http.get(
       url,
       headers: {
-        'Content-Type': 'application/json',
+        'Content-Type': 'application/json; charset=UTF-8',
         'Cookie': await _getSessionCookie(),
       },
     );
 
     if (response.statusCode == 200) {
-      Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+      Map<String, dynamic> jsonResponse = jsonDecode(utf8.decode(response.bodyBytes));
       if (jsonResponse['isSuccess'] == true && jsonResponse['result'] is List) {
         return {
           'result': jsonResponse['result']
@@ -48,6 +48,28 @@ class BusinessService {
       }
     } else {
       throw Exception('Failed to load court reservations');
+    }
+  }
+
+  Future<Map<String, dynamic>> fetchCourtSettlementInfo(String courtId) async {
+    var url = Uri.parse('$_baseUrl/api/business/sales?courtId=$courtId');
+    var response = await http.get(
+      url,
+      headers: {
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Cookie': await _getSessionCookie(),
+      },
+    );
+
+    if (response.statusCode == 200) {
+      Map<String, dynamic> jsonResponse = jsonDecode(utf8.decode(response.bodyBytes));
+      if (jsonResponse['isSuccess'] == true) {
+        return jsonResponse['result'];
+      } else {
+        throw Exception('Failed to load court settlement info');
+      }
+    } else {
+      throw Exception('Failed to load court settlement info');
     }
   }
 

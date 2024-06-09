@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../services/business_service.dart'; // 경로를 실제 프로젝트에 맞게 변경하세요
+import '../../services/business_service.dart';
+import 'court_settlement_status_screen.dart'; // 경로를 실제 프로젝트에 맞게 변경하세요
 
 class SettlementScreen extends StatefulWidget {
   @override
@@ -27,11 +28,20 @@ class _SettlementScreenState extends State<SettlementScreen> {
     }
   }
 
+  void _navigateToCourtSettlement(BuildContext context, String courtId) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => CourtSettlementStatusScreen(courtId: courtId),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('정산하기'),
+        title: Text('매출 조회'),
       ),
       body: businessInfo == null
           ? Center(child: CircularProgressIndicator())
@@ -64,10 +74,8 @@ class _SettlementScreenState extends State<SettlementScreen> {
                 return ListTile(
                   title: Text(court['courtName']),
                   trailing: ElevatedButton(
-                    onPressed: () {
-                      // 정산현황 기능을 구현하세요
-                    },
-                    child: Text('정산현황'),
+                    onPressed: () => _navigateToCourtSettlement(context, court['courtId']),
+                    child: Text('매출현황'),
                   ),
                 );
               }).toList(),
