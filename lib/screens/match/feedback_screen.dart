@@ -17,9 +17,13 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
   MannersRating mannersRating = MannersRating.AVERAGE;
   double suggestedNTRP = 4.0;
   String comments = '';
+  bool isLoading = false;
 
   void _submitFeedback() async {
     if (_formKey.currentState?.validate() ?? false) {
+      setState(() {
+        isLoading = true;
+      });
       _formKey.currentState?.save();
       var response = await feedbackApiService.submitFeedback({
         "scoreDetailDto": {
@@ -29,6 +33,10 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
         "mannersRating": mannersRating.toString().split('.').last,
         "suggestedNTRP": suggestedNTRP,
         "comments": comments
+      });
+
+      setState(() {
+        isLoading = false;
       });
 
       if (response['isSuccess']) {
@@ -150,10 +158,12 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                 ),
                 const SizedBox(height: 32),
                 Center(
-                  child: ElevatedButton(
-                    onPressed: _submitFeedback,
-                    child: const Text('피드백 저장하기'),
-                  ),
+                  child: isLoading
+                      ? CircularProgressIndicator()
+                      : ElevatedButton(
+                          onPressed: _submitFeedback,
+                          child: const Text('피드백 저장하기'),
+                        ),
                 ),
               ],
             ),
