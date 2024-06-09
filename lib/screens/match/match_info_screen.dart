@@ -51,13 +51,7 @@ class _MatchInfoScreenState extends State<MatchInfoScreen> {
           cards = [
             PromptCard(
               candidate: ongoingGamePrompt,
-              onMatchRequest: () async {
-                final result =
-                    await Navigator.pushNamed(context, '/game-details');
-                if (result != null && result == true) {
-                  initializeMatchInfo();
-                }
-              },
+              onMatchRequest: null, // No match request button for ongoing game
             ),
           ];
         });
@@ -89,6 +83,7 @@ class _MatchInfoScreenState extends State<MatchInfoScreen> {
                   initializeMatchInfo();
                 }
               },
+              icon: Icons.hourglass_empty, // Clock icon
             ),
           ];
         });
@@ -162,6 +157,7 @@ class _MatchInfoScreenState extends State<MatchInfoScreen> {
                 initializeMatchInfo();
               }
             },
+            icon: Icons.sports_tennis, // Tennis racket icon
           ),
         ),
       );
