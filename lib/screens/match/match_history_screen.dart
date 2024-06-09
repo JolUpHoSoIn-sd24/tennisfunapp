@@ -55,6 +55,30 @@ class _MatchHistoryScreenState extends State<MatchHistoryScreen>
     });
   }
 
+  String _translateGender(String gender) {
+    switch (gender) {
+      case 'MALE':
+        return '남성';
+      case 'FEMALE':
+        return '여성';
+      default:
+        return gender;
+    }
+  }
+
+  String _translateGameState(String state) {
+    switch (state) {
+      case 'PREGAME':
+        return '경기 전 - 결제 대기 중';
+      case 'INPLAY':
+        return '경기 진행 중 - 경기 완료 후 평가하세요';
+      case 'AWAIT_FEEDBACK':
+        return '피드백 대기 중 - 상대의 평가를 기다리는 중';
+      default:
+        return state;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     Color highlightColor = Colors.blue;
@@ -106,15 +130,9 @@ class _MatchHistoryScreenState extends State<MatchHistoryScreen>
             ),
             SizedBox(height: 8),
             Text('NTRP: ${user.ntrp}',
-                style: TextStyle(
-                    fontSize: 18,
-                    //fontWeight: FontWeight.bold,
-                    color: Colors.black)),
+                style: TextStyle(fontSize: 18, color: Colors.black)),
             Text('매너 점수: ${user.mannerScore}',
-                style: TextStyle(
-                    fontSize: 18,
-                    //fontWeight: FontWeight.bold,
-                    color: Colors.black)),
+                style: TextStyle(fontSize: 18, color: Colors.black)),
           ],
         ),
       ),
@@ -154,7 +172,7 @@ class _MatchHistoryScreenState extends State<MatchHistoryScreen>
             Text(
                 '경기 시간: ${DateFormat('yyyy년 MM월 dd일 HH:mm').format(game.startTime)} - ${DateFormat('HH:mm').format(game.endTime)}',
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-            Text('상태: ${game.state}',
+            Text('상태: ${_translateGameState(game.state)}',
                 style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
@@ -233,12 +251,29 @@ class _MatchHistoryScreenState extends State<MatchHistoryScreen>
               leading: CircleAvatar(
                   child: Text(player.name[0]), backgroundColor: highlightColor),
               title: Text(player.name),
-              subtitle: Text(
-                  'NTRP: ${player.ntrp} | 나이: ${player.age} | 성별: ${player.gender}',
-                  style: TextStyle(fontWeight: FontWeight.bold)),
-              trailing: Icon(
-                hasPaid ? Icons.check_circle : Icons.cancel,
-                color: hasPaid ? Colors.green : Colors.red,
+              subtitle: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('NTRP: ${player.ntrp}'),
+                  Text('나이: ${player.age}'),
+                  Text('성별: ${_translateGender(player.gender)}'),
+                ],
+              ),
+              trailing: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    hasPaid ? Icons.check_circle : Icons.cancel,
+                    color: hasPaid ? Colors.green : Colors.red,
+                  ),
+                  Text(
+                    hasPaid ? '결제 완료' : '미결제',
+                    style: TextStyle(
+                      color: hasPaid ? Colors.green : Colors.red,
+                      fontSize: 12,
+                    ),
+                  )
+                ],
               ),
             ),
           );
