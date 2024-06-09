@@ -118,23 +118,61 @@ class _MatchHistoryScreenState extends State<MatchHistoryScreen>
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: Row(
           children: [
-            Text(
-              '안녕하세요, ${user.name}님!',
-              style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black),
+            CircleAvatar(
+              radius: 30,
+              backgroundColor: highlightColor,
+              child: Text(
+                user.name[0],
+                style: TextStyle(fontSize: 30, color: Colors.white),
+              ),
             ),
-            SizedBox(height: 8),
-            Text('NTRP: ${user.ntrp}',
-                style: TextStyle(fontSize: 18, color: Colors.black)),
-            Text('매너 점수: ${user.mannerScore}',
-                style: TextStyle(fontSize: 18, color: Colors.black)),
+            SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '안녕하세요, ${user.name}님!',
+                    style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black),
+                  ),
+                  SizedBox(height: 8),
+                  _buildUserInfoRow(Icons.star, 'NTRP', '${user.ntrp}'),
+                  _buildUserInfoRow(
+                      Icons.thumb_up, '매너 점수', '${user.mannerScore}'),
+                  _buildUserInfoRow(
+                      Icons.person, '성별', _translateGender(user.gender)),
+                  _buildUserInfoRow(
+                    Icons.email,
+                    '이메일',
+                    user.emailId,
+                  ),
+                ],
+              ),
+            ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildUserInfoRow(IconData icon, String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      child: Row(
+        children: [
+          Icon(icon, color: Colors.black),
+          SizedBox(width: 8),
+          Text('$label: ', style: TextStyle(fontSize: 18, color: Colors.black)),
+          Expanded(
+            child: Text(value,
+                style: TextStyle(fontSize: 18, color: Colors.black)),
+          ),
+        ],
       ),
     );
   }
