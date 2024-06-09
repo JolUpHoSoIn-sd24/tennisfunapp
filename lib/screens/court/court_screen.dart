@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../components/court_card.dart';
 import '../../services/business_service.dart';
 import 'court_reservation_screen.dart'; // 경로를 실제 프로젝트에 맞게 변경하세요
+import 'register_court_screen.dart'; // 새로운 화면 경로를 추가하세요
 
 class CourtsScreen extends StatefulWidget {
   @override
@@ -34,6 +35,15 @@ class _CourtsScreenState extends State<CourtsScreen> {
       context,
       MaterialPageRoute(
         builder: (context) => CourtReservationScreen(courtId: courtId, courtName: courtName),
+      ),
+    );
+  }
+
+  void _navigateToRegisterCourt(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => RegisterCourtScreen(),
       ),
     );
   }
@@ -94,9 +104,7 @@ class _CourtsScreenState extends State<CourtsScreen> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          // 예약 추가 기능을 구현하세요
-        },
+        onPressed: () => _navigateToRegisterCourt(context),
         child: Icon(Icons.add),
       ),
     );
