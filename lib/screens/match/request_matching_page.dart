@@ -22,14 +22,14 @@ class _RequestMatchingPageState extends State<RequestMatchingPage>
   MatchObjective objective = MatchObjective.FUN;
   bool isFocused = false;
   bool hasReservedCourt = false;
-  RangeValues runningTimeRange = const RangeValues(30, 240);
+  RangeValues runningTimeRange = const RangeValues(30, 120);
+  double maxDistance = 5.0;
   DateTime? startDate = DateTime.now();
   TimeOfDay? startTime = TimeOfDay.now();
   DateTime? endDate = DateTime.now().add(Duration(days: 1));
   TimeOfDay? endTime = TimeOfDay.now();
   String money = '';
   String message = '';
-  double distance = 0;
   TextEditingController userIdController = TextEditingController();
   TextEditingController dislikedCourtsController = TextEditingController();
   TextEditingController minTimeController = TextEditingController();
@@ -78,31 +78,21 @@ class _RequestMatchingPageState extends State<RequestMatchingPage>
           FullWidthThinBox(),
           Label('희망시간'),
           AvailableTime(context),
-
           FullWidthThinBox(),
           Label('선호 러닝 타임'),
           RunningTimeRangeSlider(),
-          // MinTime(),
-          // MaxTime(),
-
+          FullWidthThinBox(),
+          Label('최대 거리'),
+          MaxDistanceSlider(),
           FullWidthThinBox(),
           Label('경기 목적'),
-          // Intense(),
-          // Fun(),
-          // Any(),
           ObjectiveButton(),
-
           FullWidthThinBox(),
           Label('경기 유형'),
-          // Single(),
-          // Double(),
           isSinglesButton(),
-
           FullWidthThinBox(),
           Label('한 줄 소개'),
           DescriptionFormField(),
-          // Description(),
-
           FullWidthThinBox(),
           Padding(
             padding: EdgeInsets.symmetric(vertical: 20),
@@ -133,11 +123,7 @@ class _RequestMatchingPageState extends State<RequestMatchingPage>
                       : null,
                   "objective": objective.toString().split('.').last,
                   "isSingles": isSingles,
-                  "x":
-                      126.887847771379, // Provide correct values or obtain them dynamically
-                  "y":
-                      37.5204279064529, // Provide correct values or obtain them dynamically
-                  "maxDistance": double.tryParse(distanceController.text),
+                  "maxDistance": maxDistance,
                   "dislikedCourts": dislikedCourtsController.text.split(','),
                   "minTime": int.tryParse(minTimeController.text),
                   "maxTime": int.tryParse(maxTimeController.text),
@@ -644,20 +630,37 @@ class _RequestMatchingPageState extends State<RequestMatchingPage>
   RangeSlider RunningTimeRangeSlider() {
     return RangeSlider(
       activeColor: Color(0xFF464EFF),
-      inactiveColor: Color(0xFFEDEDED),
+      inactiveColor: Colors.grey,
       values: runningTimeRange,
       min: 30,
-      max: 240,
-      divisions: 7,
+      max: 120,
+      divisions: 3,
       labels: RangeLabels(
-        runningTimeRange.start.round().toString(),
-        runningTimeRange.end.round().toString(),
+        '${runningTimeRange.start.round()} minutes',
+        '${runningTimeRange.end.round()} minutes',
       ),
       onChanged: (RangeValues values) {
         setState(() {
           runningTimeRange = values;
           minTimeController.text = values.start.round().toString();
           maxTimeController.text = values.end.round().toString();
+        });
+      },
+    );
+  }
+
+  Slider MaxDistanceSlider() {
+    return Slider(
+      value: maxDistance,
+      min: 1,
+      max: 10,
+      divisions: 9,
+      label: '${maxDistance.round()} Km',
+      activeColor: Color(0xFF464EFF),
+      inactiveColor: Colors.grey,
+      onChanged: (double value) {
+        setState(() {
+          maxDistance = value;
         });
       },
     );
@@ -766,16 +769,19 @@ class _RequestMatchingPageState extends State<RequestMatchingPage>
                 objectivebutton[1] = false;
                 objectivebutton[2] = false;
                 objective = MatchObjective.FUN;
+                break;
               case 1:
                 objectivebutton[0] = false;
                 objectivebutton[1] = true;
                 objectivebutton[2] = false;
                 objective = MatchObjective.INTENSE;
+                break;
               case 2:
                 objectivebutton[0] = false;
                 objectivebutton[1] = false;
                 objectivebutton[2] = true;
                 objective = MatchObjective.ANY;
+                break;
             }
           });
         },
