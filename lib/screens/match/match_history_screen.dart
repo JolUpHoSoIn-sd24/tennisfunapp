@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:tennisfunapp/screens/etc/terms_screen.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:tennisfunapp/services/match_api_service.dart';
 import 'package:tennisfunapp/services/user_api_service.dart';
@@ -405,7 +406,14 @@ class MenuOptions extends StatelessWidget {
               style: TextStyle(color: Theme.of(context).primaryColor)),
           trailing: Icon(Icons.arrow_forward_ios,
               color: Theme.of(context).colorScheme.secondary),
-          onTap: () {},
+          onTap: () {
+            if (option == '이용 약관 및 개인정보 처리방침') {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => TermsScreen()),
+              );
+            }
+          },
         );
       }).toList(),
     );
