@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_card_swiper/flutter_card_swiper.dart';
 import 'package:tennisfunapp/models/candidate_model.dart';
+import 'package:tennisfunapp/models/game.dart'; // Import Game class
 import 'package:tennisfunapp/components/candidate_card.dart';
 import 'package:tennisfunapp/components/prompt_card.dart';
 import 'package:tennisfunapp/services/match_api_service.dart';
@@ -20,10 +21,17 @@ class _MatchInfoScreenState extends State<MatchInfoScreen> {
 
   final List<CandidateModel> prompt = [
     CandidateModel(
-        name: "게임 할 준비 되셨나요?",
-        skillLevel: "아래 버튼을 눌러 상대를 찾아보세요!",
-        isPrompt: true),
+      name: "게임 할 준비 되셨나요?",
+      skillLevel: "아래 버튼을 눌러 상대를 찾아보세요!",
+      isPrompt: true,
+    ),
   ];
+
+  final CandidateModel ongoingGamePrompt = CandidateModel(
+    name: "현재 진행중인 게임이 있습니다.",
+    skillLevel: "먼저 게임을 마무리해주세요.",
+    isPrompt: true,
+  );
 
   List<Widget> cards = [];
 
@@ -35,6 +43,27 @@ class _MatchInfoScreenState extends State<MatchInfoScreen> {
 
   void initializeMatchInfo() async {
     try {
+      // Check for ongoing game
+      Game? ongoingGame = await matchApiService.fetchGameDetails();
+      if (ongoingGame != null) {
+        // Display ongoing game prompt
+        setState(() {
+          cards = [
+            PromptCard(
+              candidate: ongoingGamePrompt,
+              onMatchRequest: () async {
+                final result =
+                    await Navigator.pushNamed(context, '/game-details');
+                if (result != null && result == true) {
+                  initializeMatchInfo();
+                }
+              },
+            ),
+          ];
+        });
+        return;
+      }
+
       List<dynamic>? matchResults = await matchApiService.fetchMatchResults();
       bool matchRequest = await matchApiService.fetchMatchRequest();
 
