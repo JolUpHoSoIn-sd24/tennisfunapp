@@ -268,12 +268,15 @@ class _MatchHistoryScreenState extends State<MatchHistoryScreen>
                                         (player) => player.userId == user?.id)
                                     .feedback ==
                                 false
-                        ? () {
-                            Navigator.push(
+                        ? () async {
+                            // Await the result of the FeedbackScreen
+                            await Navigator.push(
                               context,
                               MaterialPageRoute(
                                   builder: (context) => FeedbackScreen()),
                             );
+                            // Reload data after coming back from the FeedbackScreen
+                            loadData();
                           }
                         : null,
                     style: ElevatedButton.styleFrom(
