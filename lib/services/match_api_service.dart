@@ -158,4 +158,33 @@ class MatchApiService {
       return null;
     }
   }
+
+  Future<List<dynamic>> fetchMatchHistory() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? sessionCookie = prefs.getString('sessionCookie');
+
+    var headers = <String, String>{
+      'Content-Type': 'application/json',
+    };
+
+    if (sessionCookie != null) {
+      headers['Cookie'] = sessionCookie;
+    }
+
+    final response = await http.get(
+      Uri.parse('$_baseUrl/api/game/history'),
+      headers: headers,
+    );
+
+    if (response.statusCode == 200) {
+      final jsonResponse = json.decode(response.body);
+      if (jsonResponse['isSuccess']) {
+        return jsonResponse['result'] as List<dynamic>;
+      } else {
+        throw Exception('Failed to load match history');
+      }
+    } else {
+      throw Exception('Failed to load match history');
+    }
+  }
 }
