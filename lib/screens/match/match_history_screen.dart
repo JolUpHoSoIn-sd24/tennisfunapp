@@ -7,10 +7,52 @@ import 'package:tennisfunapp/services/payment_api_service.dart';
 import 'package:tennisfunapp/models/game.dart';
 import 'package:tennisfunapp/models/user.dart';
 
-class MatchHistoryScreen extends StatelessWidget {
+class MatchHistoryScreen extends StatefulWidget {
+  @override
+  _MatchHistoryScreenState createState() => _MatchHistoryScreenState();
+}
+
+class _MatchHistoryScreenState extends State<MatchHistoryScreen>
+    with WidgetsBindingObserver {
   final MatchApiService matchApiService = MatchApiService();
   final UserApiService userApiService = UserApiService();
   final PaymentApiService paymentApiService = PaymentApiService();
+  Game? game;
+  User? user;
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    loadData();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      loadData(); // Reload data when app is resumed
+    }
+  }
+
+  void loadData() async {
+    setState(() {
+      isLoading = true;
+    });
+    var gameDetails = await matchApiService.fetchGameDetails();
+    var userDetails = await userApiService.fetchUserDetails();
+    setState(() {
+      game = gameDetails;
+      user = userDetails;
+      isLoading = false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -20,69 +62,61 @@ class MatchHistoryScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text('마이페이지'),
       ),
-      body: FutureBuilder<Map<String, dynamic>>(
-        future: Future.wait([
-          matchApiService.fetchGameDetails(),
-          userApiService.fetchUserDetails(),
-        ]).then((values) => {'game': values[0], 'user': values[1]}),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Center(child: Text('에러가 발생했습니다.'));
-          } else if (snapshot.hasData) {
-            final game = snapshot.data!['game'] as Game?;
-            final user = snapshot.data!['user'] as User?;
-
-            return SingleChildScrollView(
+      body: isLoading
+          ? Center(child: CircularProgressIndicator())
+          : SingleChildScrollView(
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     _buildUserDetails(user, highlightColor),
+                    SizedBox(height: 16),
                     if (game != null) ...[
                       SizedBox(height: 24),
-                      _buildGameDetails(game, highlightColor, context),
-                      _buildPlayerDetails(game, highlightColor),
+                      _buildGameDetails(game!, highlightColor, context),
                     ] else ...[
                       Center(child: Text('매칭 결과가 없습니다.')),
                     ],
+                    MenuOptions(),
                   ],
                 ),
               ),
-            );
-          } else {
-            return Center(child: Text('데이터가 없습니다.'));
-          }
-        },
-      ),
+            ),
     );
   }
 
   Widget _buildUserDetails(User? user, Color highlightColor) {
     if (user == null) return SizedBox.shrink();
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          '안녕하세요, ${user.name}님!',
-          style: TextStyle(
-              fontSize: 24, fontWeight: FontWeight.bold, color: highlightColor),
+    return Card(
+      elevation: 4,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              '안녕하세요, ${user.name}님!',
+              style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black),
+            ),
+            SizedBox(height: 8),
+            Text('NTRP: ${user.ntrp}',
+                style: TextStyle(
+                    fontSize: 18,
+                    //fontWeight: FontWeight.bold,
+                    color: Colors.black)),
+            Text('매너 점수: ${user.mannerScore}',
+                style: TextStyle(
+                    fontSize: 18,
+                    //fontWeight: FontWeight.bold,
+                    color: Colors.black)),
+          ],
         ),
-        SizedBox(height: 8),
-        Text('NTRP: ${user.ntrp}',
-            style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: highlightColor)),
-        Text('매너 점수: ${user.mannerScore}',
-            style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: highlightColor)),
-        SizedBox(height: 16),
-      ],
+      ),
     );
   }
 
@@ -110,20 +144,23 @@ class MatchHistoryScreen extends StatelessWidget {
             Text('코트: ${game.court.name}',
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
             Text('코트 타입: ${game.court.surfaceType}',
-                style: TextStyle(fontSize: 16)),
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
             Text('대관 비용: ${game.rentalCost.toInt()}원',
                 style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: highlightColor)),
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                )),
             Text(
                 '경기 시간: ${DateFormat('yyyy년 MM월 dd일 HH:mm').format(game.startTime)} - ${DateFormat('HH:mm').format(game.endTime)}',
-                style: TextStyle(fontSize: 16)),
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
             Text('상태: ${game.state}',
                 style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
-                    color: highlightColor)),
+                    color:
+                        game.state == 'PREGAME' ? Colors.red : Colors.green)),
+            SizedBox(height: 24),
+            _buildPlayerDetails(game, highlightColor),
             SizedBox(height: 24),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -194,8 +231,31 @@ class MatchHistoryScreen extends StatelessWidget {
             ),
           );
         }).toList(),
-        SizedBox(height: 16),
       ],
+    );
+  }
+}
+
+class MenuOptions extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    List<String> options = [
+      'Edit Account Info',
+      'View and Change Ongoing Matches',
+      'View and Change Match Status',
+      'Terms of Use of TennisFun'
+    ];
+
+    return Column(
+      children: options.map((option) {
+        return ListTile(
+          title: Text(option,
+              style: TextStyle(color: Theme.of(context).primaryColor)),
+          trailing: Icon(Icons.arrow_forward_ios,
+              color: Theme.of(context).colorScheme.secondary),
+          onTap: () {},
+        );
+      }).toList(),
     );
   }
 }

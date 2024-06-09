@@ -4,10 +4,9 @@ import 'package:tennisfunapp/services/match_api_service.dart';
 
 enum MatchObjective { INTENSE, FUN, ANY }
 
-//토글버튼으로 새로 추가된 라인
+// 토글버튼으로 새로 추가된 라인
 final isSinglesbutton = [true, false];
 final objectivebutton = [true, false, false];
-//
 
 class RequestMatchingPage extends StatefulWidget {
   const RequestMatchingPage({Key? key}) : super(key: key);
@@ -23,7 +22,7 @@ class _RequestMatchingPageState extends State<RequestMatchingPage>
   MatchObjective objective = MatchObjective.FUN;
   bool isFocused = false;
   bool hasReservedCourt = false;
-  RangeValues runningTimeRange = const RangeValues(0, 240);
+  RangeValues runningTimeRange = const RangeValues(30, 240);
   DateTime? startDate = DateTime.now();
   TimeOfDay? startTime = TimeOfDay.now();
   DateTime? endDate = DateTime.now().add(Duration(days: 1));
@@ -38,6 +37,7 @@ class _RequestMatchingPageState extends State<RequestMatchingPage>
   TextEditingController rentalCostController = TextEditingController();
   TextEditingController descriptionController = TextEditingController();
   TextEditingController reservationCourtIdController = TextEditingController();
+  TextEditingController distanceController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -59,12 +59,27 @@ class _RequestMatchingPageState extends State<RequestMatchingPage>
       body: ListView(
         // padding: EdgeInsets.all(8),
         children: [
+          Container(
+            padding: EdgeInsets.all(16),
+            //color: Color(0xFFEDEDED),
+            child: Text(
+              '매칭 정보를 입력해주세요.',
+              style: TextStyle(
+                color: Colors.black,
+                fontSize: 16,
+                fontFamily: 'Pretendard',
+                fontWeight: FontWeight.w700,
+                height: 1.5,
+                letterSpacing: -0.10,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ),
           FullWidthThinBox(),
           Label('희망시간'),
           AvailableTime(context),
 
           FullWidthThinBox(),
-          // EndDate(context),
           Label('선호 러닝 타임'),
           RunningTimeRangeSlider(),
           // MinTime(),
@@ -89,13 +104,6 @@ class _RequestMatchingPageState extends State<RequestMatchingPage>
           // Description(),
 
           FullWidthThinBox(),
-          CourtIsReserved(),
-          if (hasReservedCourt) ...[
-            ReservationCourtID(),
-            RentalCost(),
-            ReservedDate(context),
-            ReservedTime(),
-          ],
           Padding(
             padding: EdgeInsets.symmetric(vertical: 20),
             child: ElevatedButton(
@@ -125,8 +133,15 @@ class _RequestMatchingPageState extends State<RequestMatchingPage>
                       : null,
                   "objective": objective.toString().split('.').last,
                   "isSingles": isSingles,
+                  "x":
+                      126.887847771379, // Provide correct values or obtain them dynamically
+                  "y":
+                      37.5204279064529, // Provide correct values or obtain them dynamically
+                  "maxDistance": double.tryParse(distanceController.text),
+                  "dislikedCourts": dislikedCourtsController.text.split(','),
                   "minTime": int.tryParse(minTimeController.text),
                   "maxTime": int.tryParse(maxTimeController.text),
+                  "isReserved": hasReservedCourt,
                   "description": descriptionController.text,
                 };
 
@@ -509,12 +524,6 @@ class _RequestMatchingPageState extends State<RequestMatchingPage>
   ListTile AvailableTime(BuildContext context) {
     return ListTile(
       contentPadding: EdgeInsets.zero,
-
-      // leading: Icon(
-      //   Icons.event,
-      //   color: Color(0xFF464EFF),
-      //   // size: 25,
-      // ),
       title: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
@@ -530,7 +539,6 @@ class _RequestMatchingPageState extends State<RequestMatchingPage>
                 setState(() {
                   startDate = picked;
 
-                  //변경된 디자인에 따른 추가된 라인
                   endDate = picked;
                 });
               }
@@ -638,9 +646,9 @@ class _RequestMatchingPageState extends State<RequestMatchingPage>
       activeColor: Color(0xFF464EFF),
       inactiveColor: Color(0xFFEDEDED),
       values: runningTimeRange,
-      min: 0,
+      min: 30,
       max: 240,
-      divisions: 8,
+      divisions: 7,
       labels: RangeLabels(
         runningTimeRange.start.round().toString(),
         runningTimeRange.end.round().toString(),
@@ -801,6 +809,7 @@ class _RequestMatchingPageState extends State<RequestMatchingPage>
                     fontFamily: 'Pretendard',
                     fontWeight: FontWeight.w400,
                     letterSpacing: -0.10,
+                    color: Colors.grey, // 텍스트 색상 회색으로 설정하여 비활성화처럼 보이게 함
                   ))),
         ],
         isSelected: isSinglesbutton,
@@ -815,9 +824,10 @@ class _RequestMatchingPageState extends State<RequestMatchingPage>
               isSinglesbutton[1] = false;
               isSingles = true;
             } else {
-              isSinglesbutton[0] = false;
-              isSinglesbutton[1] = true;
-              isSingles = false;
+              // 복식 버튼은 비활성화 상태이므로 선택 불가
+              // isSinglesbutton[0] = false;
+              // isSinglesbutton[1] = true;
+              // isSingles = false;
             }
           });
         },

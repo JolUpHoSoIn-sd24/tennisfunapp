@@ -58,7 +58,7 @@ AI, 프론트엔드, 백엔드 레포지토리를 아래 링크에서 확인하�
 
 |이름|역할|email|github|
 |---|---|---|---|
-|김동령|프론트엔드 개발|insoyafear@ajou.ac.kr|https://github.com/Dolmaeng|
-|김영찬|프론트엔드 개발|ych601@ajou.ac.kr|https://github.com/rladudcks|
+|한승훈|프론트엔드 개발|hsh1223@ajou.ac.kr|https://github.com/shhan730|
+|김관주|프론트엔드 개발|kkj6235@gmail.com|https://github.com/kkj6235|
 
 <br/>
