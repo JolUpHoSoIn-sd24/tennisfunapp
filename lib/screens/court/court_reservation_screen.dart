@@ -1,16 +1,22 @@
 import 'package:flutter/material.dart';
-import '../../services/business_service.dart';
+import '../../services/court_service.dart';
 import 'court_reservation_detail_screen.dart';
 
 class CourtReservationScreen extends StatefulWidget {
+  final String courtId;
+  final String courtName;
+
+  CourtReservationScreen({required this.courtId, required this.courtName});
+
   @override
   _CourtReservationScreenState createState() => _CourtReservationScreenState();
 }
 
 class _CourtReservationScreenState extends State<CourtReservationScreen> {
-  final BusinessService _businessService = BusinessService();
+  final CourtService _courtService = CourtService();
   List<Map<String, dynamic>> _reservations = [];
   bool _isLoading = true;
+  bool _isPending = false;
 
   @override
   void initState() {
@@ -19,16 +25,20 @@ class _CourtReservationScreenState extends State<CourtReservationScreen> {
   }
 
   Future<void> _fetchReservations() async {
+    setState(() {
+      _isLoading = true;
+    });
     try {
-      var result = await _businessService.fetchCourtReservations();
-      if (result != null && result['result'] is List) {
+      var result = _isPending
+          ? await _courtService.fetchPendingReservations(widget.courtId)
+          : await _courtService.fetchReservations(widget.courtId);
+      if (result != null) {
         setState(() {
-          _reservations = List<Map<String, dynamic>>.from(result['result'].map((item) => item as Map<String, dynamic>)); // 서버에서 받아온 예약 데이터를 사용합니다.
+          _reservations = result;
           _isLoading = false;
         });
       }
     } catch (e) {
-      // 에러 처리
       print('Failed to load reservations: $e');
       setState(() {
         _isLoading = false;
@@ -45,22 +55,40 @@ class _CourtReservationScreenState extends State<CourtReservationScreen> {
       ),
       body: Column(
         children: <Widget>[
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              ElevatedButton(
-                onPressed: () {},
-                child: Text('예약'),
-              ),
-              SizedBox(width: 10),
-              ElevatedButton(
-                onPressed: () {},
-                child: Text('가예약'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.grey, // 버튼 색상을 회색으로 변경
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              children: [
+                Text(
+                  widget.courtName,
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                 ),
-              ),
-            ],
+                SizedBox(height: 10),
+                ToggleButtons(
+                  isSelected: [_isPending == false, _isPending == true],
+                  onPressed: (int index) {
+                    setState(() {
+                      _isPending = index == 1;
+                      _fetchReservations();
+                    });
+                  },
+                  borderRadius: BorderRadius.circular(8),
+                  selectedColor: Colors.white,
+                  fillColor: Theme.of(context).primaryColor,
+                  color: Colors.black,
+                  children: <Widget>[
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Text('예약'),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Text('가예약'),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
           Expanded(
             child: _isLoading
@@ -94,25 +122,25 @@ class _CourtReservationScreenState extends State<CourtReservationScreen> {
 
     return Card(
       child: ListTile(
-        leading: Image.asset('assets/images/ball.png', width: 50, height: 50), // 이미지 경로를 적절히 수정하세요
+        leading: Image.asset('assets/images/ball.png', width: 50, height: 50),
         title: Text(
           courtName,
-          style: TextStyle(fontSize: 16), // 글씨 크기 조정
+          style: TextStyle(fontSize: 16),
         ),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             Text(
               '예약자 이름: $reserverNames',
-              style: TextStyle(fontSize: 14), // 글씨 크기 조정
+              style: TextStyle(fontSize: 14),
             ),
             Text(
               '예약 일자: $formattedDate',
-              style: TextStyle(fontSize: 14), // 글씨 크기 조정
+              style: TextStyle(fontSize: 14),
             ),
             Text(
               '예약 시간: $formattedTime',
-              style: TextStyle(fontSize: 14), // 글씨 크기 조정
+              style: TextStyle(fontSize: 14),
             ),
           ],
         ),
@@ -123,9 +151,15 @@ class _CourtReservationScreenState extends State<CourtReservationScreen> {
               MaterialPageRoute(builder: (context) => CourtReservationDetailScreen()),
             );
           },
+          style: ElevatedButton.styleFrom(
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
+          ),
           child: Text(
             '세부내용',
-            style: TextStyle(fontSize: 7), // 글씨 크기 조정
+            style: TextStyle(fontSize: 12),
           ),
         ),
       ),
