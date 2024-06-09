@@ -101,7 +101,7 @@ class _MatchHistoryScreenState extends State<MatchHistoryScreen>
                       SizedBox(height: 24),
                       _buildGameDetails(game!, highlightColor, context),
                     ] else ...[
-                      Center(child: Text('매칭 결과가 없습니다.')),
+                      _buildNoMatchCard(highlightColor),
                     ],
                     MenuOptions(),
                   ],
@@ -258,19 +258,59 @@ class _MatchHistoryScreenState extends State<MatchHistoryScreen>
                         foregroundColor: Colors.white),
                     child: Text('결제하기')),
                 ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => FeedbackScreen()),
-                      );
-                    },
+                    onPressed: game.players
+                                .firstWhere(
+                                    (player) => player.userId == user?.id)
+                                .feedback ==
+                            false
+                        ? () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => FeedbackScreen()),
+                            );
+                          }
+                        : null,
                     style: ElevatedButton.styleFrom(
-                        backgroundColor: highlightColor,
+                        backgroundColor: game.players
+                                    .firstWhere(
+                                        (player) => player.userId == user?.id)
+                                    .feedback ==
+                                false
+                            ? highlightColor
+                            : Colors.grey,
                         foregroundColor: Colors.white),
                     child: Text('평가하기')),
               ],
             )
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNoMatchCard(Color highlightColor) {
+    return Card(
+      elevation: 4,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.info, color: highlightColor, size: 30),
+                SizedBox(width: 8),
+                Text('매칭 결과가 없습니다.',
+                    style:
+                        TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+              ],
+            ),
+            Divider(color: highlightColor, thickness: 2),
+            SizedBox(height: 16),
+            Text('매칭 과정을 진행해주세요.',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
           ],
         ),
       ),
