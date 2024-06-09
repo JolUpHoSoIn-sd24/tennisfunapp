@@ -10,6 +10,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   String email = '';
   String password = '';
+  String confirmPassword = ''; // Add confirmPassword field
   String name = '';
   double ntrp = 2.0; // Default NTRP value
   String birthDate = ''; // 생년월일 필드
@@ -95,6 +96,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   FormFieldLabel('비밀번호'),
                   const SizedBox(height: 5),
                   PasswordFormField_signup(),
+                  const SizedBox(height: 20),
+                  FormFieldLabel('비밀번호 재확인'), // Label for confirm password
+                  const SizedBox(height: 5),
+                  ConfirmPasswordFormField_signup(), // Field for confirm password
                   const SizedBox(height: 20),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.start,
@@ -386,6 +391,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
               _isFocused = false;
             });
           },
+          onChanged: (value) {
+            setState(() {
+              password = value;
+            });
+          },
           onSaved: (value) => password = value!,
           decoration: InputDecoration(
               hintText: '비밀번호를 입력해주세요',
@@ -410,6 +420,71 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@#$%^&+=])[A-Za-z\d@#$%^&+=]{8,}$');
             if (!regex.hasMatch(value)) {
               return '비밀번호 형식이 올바르지 않습니다.';
+            }
+            return null;
+          },
+        ));
+  }
+
+  Container ConfirmPasswordFormField_signup() {
+    return Container(
+        width: 340,
+        height: 30,
+        decoration: ShapeDecoration(
+          shape: RoundedRectangleBorder(
+            side: BorderSide(width: 1, color: Color(0xFFD3D3D3)),
+            borderRadius: BorderRadius.circular(5),
+          ),
+        ),
+        child: TextFormField(
+          style: TextStyle(
+            color: Color(0xFF919191),
+            fontSize: 10,
+            fontFamily: 'Pretendard',
+            fontWeight: FontWeight.w400,
+            height: 1.0,
+            letterSpacing: -0.08,
+          ),
+          textAlignVertical: TextAlignVertical(y: 1.0),
+          // 포커스를 받았을 때 상태 업데이트
+          onTap: () {
+            setState(() {
+              _isFocused = true;
+            });
+          },
+          // 포커스를 잃었을 때 상태 업데이트
+          onFieldSubmitted: (value) {
+            setState(() {
+              _isFocused = false;
+            });
+          },
+          onChanged: (value) {
+            setState(() {
+              confirmPassword = value;
+            });
+          },
+          onSaved: (value) => confirmPassword = value!,
+          decoration: InputDecoration(
+              hintText: '비밀번호를 다시 입력해주세요',
+              enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(5),
+                  borderSide: BorderSide(color: Colors.grey)),
+              focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(5),
+                  borderSide: BorderSide(color: Color(0xFF464EFF))),
+              errorBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(5),
+                  borderSide: BorderSide(color: Colors.red)),
+              focusedErrorBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(5),
+                  borderSide: BorderSide(color: Colors.red))),
+          obscureText: true,
+          validator: (value) {
+            if (confirmPassword == null || confirmPassword.isEmpty) {
+              return '비밀번호를 다시 입력해주세요.';
+            }
+            if (password != confirmPassword) {
+              return '비밀번호가 다릅니다. 다시 입력해주세요.';
             }
             return null;
           },

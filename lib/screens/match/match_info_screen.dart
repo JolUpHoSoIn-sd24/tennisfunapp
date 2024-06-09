@@ -1,7 +1,8 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_card_swiper/flutter_card_swiper.dart';
-import 'package:http/src/response.dart';
 import 'package:tennisfunapp/models/candidate_model.dart';
+import 'package:tennisfunapp/models/game.dart'; // Import Game class
 import 'package:tennisfunapp/components/candidate_card.dart';
 import 'package:tennisfunapp/components/prompt_card.dart';
 import 'package:tennisfunapp/services/match_api_service.dart';
@@ -10,19 +11,27 @@ class MatchInfoScreen extends StatefulWidget {
   const MatchInfoScreen({Key? key}) : super(key: key);
 
   @override
-  _TennisMatchScreenState createState() => _TennisMatchScreenState();
+  _MatchInfoScreenState createState() => _MatchInfoScreenState();
 }
 
-class _TennisMatchScreenState extends State<MatchInfoScreen> {
+class _MatchInfoScreenState extends State<MatchInfoScreen> {
   final CardSwiperController controller = CardSwiperController();
   final MatchApiService matchApiService = MatchApiService();
+  Timer? pollingTimer;
 
   final List<CandidateModel> prompt = [
     CandidateModel(
-        name: "게임 할 준비 되셨나요?",
-        skillLevel: "아래 버튼을 눌러 상대를 찾아보세요!",
-        isPrompt: true),
+      name: "게임 할 준비 되셨나요?",
+      skillLevel: "아래 버튼을 눌러 상대를 찾아보세요!",
+      isPrompt: true,
+    ),
   ];
+
+  final CandidateModel ongoingGamePrompt = CandidateModel(
+    name: "현재 진행중인 게임이 있습니다.",
+    skillLevel: "먼저 게임을 마무리해주세요.",
+    isPrompt: true,
+  );
 
   List<Widget> cards = [];
 
@@ -34,6 +43,22 @@ class _TennisMatchScreenState extends State<MatchInfoScreen> {
 
   void initializeMatchInfo() async {
     try {
+      // Check for ongoing game
+      Game? ongoingGame = await matchApiService.fetchGameDetails();
+      if (ongoingGame != null) {
+        // Display ongoing game prompt
+        setState(() {
+          cards = [
+            PromptCard(
+              candidate: ongoingGamePrompt,
+              onMatchRequest: null, // No match request button for ongoing game
+              icon: Icons.warning, // Warning icon
+            ),
+          ];
+        });
+        return;
+      }
+
       List<dynamic>? matchResults = await matchApiService.fetchMatchResults();
       bool matchRequest = await matchApiService.fetchMatchRequest();
 
@@ -59,11 +84,15 @@ class _TennisMatchScreenState extends State<MatchInfoScreen> {
                   initializeMatchInfo();
                 }
               },
+              icon: Icons.hourglass_empty, // Clock icon
             ),
           ];
         });
+        // 시작 polling
+        startPolling();
       } else {
         // 결과가 빈 배열이 아닌 경우 (매치 결과 표시)
+        stopPolling(); // 매칭 결과가 생기면 polling 중지
         List<CandidateModel> candidates = matchResults?.map((result) {
               final opponent = result['opponent'];
               final matchDetails = result['matchDetails'];
@@ -95,9 +124,22 @@ class _TennisMatchScreenState extends State<MatchInfoScreen> {
     }
   }
 
+  void startPolling() {
+    pollingTimer?.cancel();
+    pollingTimer = Timer.periodic(Duration(seconds: 2), (timer) {
+      initializeMatchInfo();
+    });
+  }
+
+  void stopPolling() {
+    pollingTimer?.cancel();
+    pollingTimer = null;
+  }
+
   @override
   void dispose() {
     controller.dispose();
+    stopPolling();
     super.dispose();
   }
 
@@ -116,6 +158,7 @@ class _TennisMatchScreenState extends State<MatchInfoScreen> {
                 initializeMatchInfo();
               }
             },
+            icon: Icons.sports_tennis, // Tennis racket icon
           ),
         ),
       );

@@ -26,8 +26,9 @@ class _RequestMatchingPageState extends State<RequestMatchingPage>
   double maxDistance = 5.0;
   DateTime? startDate = DateTime.now();
   TimeOfDay? startTime = TimeOfDay.now();
-  DateTime? endDate = DateTime.now().add(Duration(days: 1));
-  TimeOfDay? endTime = TimeOfDay.now();
+  DateTime? endDate = DateTime.now();
+  TimeOfDay? endTime =
+      TimeOfDay.now().replacing(minute: TimeOfDay.now().minute + 1);
   String money = '';
   String message = '';
   TextEditingController userIdController = TextEditingController();
@@ -44,6 +45,96 @@ class _RequestMatchingPageState extends State<RequestMatchingPage>
     super.initState();
     minTimeController.text = runningTimeRange.start.round().toString();
     maxTimeController.text = runningTimeRange.end.round().toString();
+  }
+
+  void _validateAndSetStartDate(DateTime picked) {
+    if (endDate != null && picked.isAfter(endDate!)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("시작 날짜는 종료 날짜보다 이후일 수 없습니다.")),
+      );
+    } else {
+      setState(() {
+        startDate = picked;
+      });
+    }
+  }
+
+  void _validateAndSetStartTime(TimeOfDay picked) {
+    if (endDate != null && endTime != null) {
+      DateTime startDateTime = DateTime(
+        startDate!.year,
+        startDate!.month,
+        startDate!.day,
+        picked.hour,
+        picked.minute,
+      );
+      DateTime endDateTime = DateTime(
+        endDate!.year,
+        endDate!.month,
+        endDate!.day,
+        endTime!.hour,
+        endTime!.minute,
+      );
+      if (startDateTime.isAfter(endDateTime) ||
+          startDateTime.isAtSameMomentAs(endDateTime)) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("시작 시간은 종료 시간과 같거나 이후일 수 없습니다.")),
+        );
+      } else {
+        setState(() {
+          startTime = picked;
+        });
+      }
+    } else {
+      setState(() {
+        startTime = picked;
+      });
+    }
+  }
+
+  void _validateAndSetEndDate(DateTime picked) {
+    if (startDate != null && picked.isBefore(startDate!)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("종료 날짜는 시작 날짜보다 이전일 수 없습니다.")),
+      );
+    } else {
+      setState(() {
+        endDate = picked;
+      });
+    }
+  }
+
+  void _validateAndSetEndTime(TimeOfDay picked) {
+    if (startDate != null && startTime != null) {
+      DateTime startDateTime = DateTime(
+        startDate!.year,
+        startDate!.month,
+        startDate!.day,
+        startTime!.hour,
+        startTime!.minute,
+      );
+      DateTime endDateTime = DateTime(
+        endDate!.year,
+        endDate!.month,
+        endDate!.day,
+        picked.hour,
+        picked.minute,
+      );
+      if (endDateTime.isBefore(startDateTime) ||
+          endDateTime.isAtSameMomentAs(startDateTime)) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("종료 시간은 시작 시간과 같거나 이전일 수 없습니다.")),
+        );
+      } else {
+        setState(() {
+          endTime = picked;
+        });
+      }
+    } else {
+      setState(() {
+        endTime = picked;
+      });
+    }
   }
 
   @override
@@ -205,9 +296,7 @@ class _RequestMatchingPageState extends State<RequestMatchingPage>
                 lastDate: DateTime.now().add(Duration(days: 7)),
               );
               if (picked != null && picked != endDate) {
-                setState(() {
-                  endDate = picked;
-                });
+                _validateAndSetEndDate(picked);
               }
             },
             child: Text(
@@ -231,9 +320,7 @@ class _RequestMatchingPageState extends State<RequestMatchingPage>
                 initialTime: endTime ?? TimeOfDay.now(),
               );
               if (picked != null && picked != endTime) {
-                setState(() {
-                  endTime = picked;
-                });
+                _validateAndSetEndTime(picked);
               }
             },
             child: Text(
@@ -455,9 +542,7 @@ class _RequestMatchingPageState extends State<RequestMatchingPage>
                 lastDate: DateTime.now().add(Duration(days: 7)),
               );
               if (picked != null && picked != endDate) {
-                setState(() {
-                  endDate = picked;
-                });
+                _validateAndSetEndDate(picked);
               }
             },
             child: Container(
@@ -487,9 +572,7 @@ class _RequestMatchingPageState extends State<RequestMatchingPage>
                 initialTime: endTime ?? TimeOfDay.now(),
               );
               if (picked != null && picked != endTime) {
-                setState(() {
-                  endTime = picked;
-                });
+                _validateAndSetEndTime(picked);
               }
             },
             child: Container(
@@ -530,11 +613,7 @@ class _RequestMatchingPageState extends State<RequestMatchingPage>
                 lastDate: DateTime.now().add(Duration(days: 7)),
               );
               if (picked != null && picked != startDate) {
-                setState(() {
-                  startDate = picked;
-
-                  endDate = picked;
-                });
+                _validateAndSetStartDate(picked);
               }
             },
             child: Container(
@@ -564,9 +643,7 @@ class _RequestMatchingPageState extends State<RequestMatchingPage>
                 initialTime: startTime ?? TimeOfDay.now(),
               );
               if (picked != null && picked != startTime) {
-                setState(() {
-                  startTime = picked;
-                });
+                _validateAndSetStartTime(picked);
               }
             },
             child: Container(
@@ -595,9 +672,7 @@ class _RequestMatchingPageState extends State<RequestMatchingPage>
                 initialTime: endTime ?? TimeOfDay.now(),
               );
               if (picked != null && picked != endTime) {
-                setState(() {
-                  endTime = picked;
-                });
+                _validateAndSetEndTime(picked);
               }
             },
             child: Container(
