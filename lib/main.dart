@@ -58,7 +58,6 @@ class MyApp extends StatelessWidget {
         '/business/home' : (context) => BusinessHomeScreen(),
         '/business/settlement' : (context) =>SettlementScreen(),
         '/business/myPage' : (context) => BusinessMyPageScreen(),
-        '/business/reservations' : (context) => CourtReservationScreen(),
        },
     );
   }

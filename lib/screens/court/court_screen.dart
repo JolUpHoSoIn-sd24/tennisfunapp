@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../components/court_card.dart';
-import '../../services/business_service.dart'; // 경로를 실제 프로젝트에 맞게 변경하세요
+import '../../services/business_service.dart';
+import 'court_reservation_screen.dart'; // 경로를 실제 프로젝트에 맞게 변경하세요
 
 class CourtsScreen extends StatefulWidget {
   @override
@@ -26,6 +27,15 @@ class _CourtsScreenState extends State<CourtsScreen> {
     } catch (e) {
       print('Failed to load business info: $e');
     }
+  }
+
+  void _navigateToCourtReservation(BuildContext context, String courtId, String courtName) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => CourtReservationScreen(courtId: courtId, courtName: courtName),
+      ),
+    );
   }
 
   @override
@@ -58,16 +68,13 @@ class _CourtsScreenState extends State<CourtsScreen> {
                           children: <Widget>[
                             Text(
                               businessInfo!['shopName'],
-                              style: TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold),
+                              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                               overflow: TextOverflow.ellipsis,
                             ),
                             SizedBox(height: 8),
                             Text(businessInfo!['address']),
                             SizedBox(height: 8),
-                            Text('24시간 운영 | 주차 가능',
-                                style: TextStyle(color: Colors.blue)),
+                            Text('24시간 운영 | 주차 가능', style: TextStyle(color: Colors.blue)),
                           ],
                         ),
                       ),
@@ -77,6 +84,7 @@ class _CourtsScreenState extends State<CourtsScreen> {
                   ...businessInfo!['courtInfo'].map<Widget>((court) {
                     return CourtCard(
                       courtName: court['courtName'],
+                      onTap: () => _navigateToCourtReservation(context, court['courtId'], court['courtName']),
                     );
                   }).toList(),
                 ],
