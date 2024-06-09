@@ -23,10 +23,11 @@ class _StreamingTestState extends State<StreamingTest> {
 
   RTCDataChannelInit? _dataChannelDict;
   RTCDataChannel? _dataChannel;
-  String transformType = "none";
+  final String transformType = "referee";
 
   // MediaStream? _localStream;
-  bool _inCalling = false;
+  bool _isStreaming = false;
+  bool _isInferenceVideo = false;
 
   DateTime? _timeStart;
 
@@ -36,7 +37,12 @@ class _StreamingTestState extends State<StreamingTest> {
     print("TRACK EVENT: ${event.streams.map((e) => e.id)}, ${event.track.id}");
     if (event.track.kind == "video") {
       print("HERE");
-      _localRenderer.srcObject = event.streams[0];
+      if (_isInferenceVideo) {
+        _localRenderer.srcObject = event.streams[0];
+      }
+      else {
+        _localRenderer.srcObject = _localStream;
+      }
     }
   }
 
@@ -150,9 +156,9 @@ class _StreamingTestState extends State<StreamingTest> {
       'audio': false,
       'video': {
         'mandatory': {
-          'minWidth': '1280', // Provide your own width, height and frame rate here
-          'minHeight': '720',
-          'minFrameRate': '60',
+          'width': '1280',
+          'height': '720',
+          'frameRate': '30',
         },
         // 'facingMode': 'user',
         'facingMode': 'environment',
@@ -162,6 +168,9 @@ class _StreamingTestState extends State<StreamingTest> {
 
     try {
       var stream = await navigator.mediaDevices.getUserMedia(mediaConstraints);
+
+      var videoTrack = stream.getVideoTracks().first;
+
       // _mediaDevicesList = await navigator.mediaDevices.enumerateDevices();
       _localStream = stream;
       // _localRenderer.srcObject = _localStream;
@@ -178,7 +187,7 @@ class _StreamingTestState extends State<StreamingTest> {
     if (!mounted) return;
 
     setState(() {
-      _inCalling = true;
+      _isStreaming = true;
       _loading = false;
     });
   }
@@ -194,7 +203,7 @@ class _StreamingTestState extends State<StreamingTest> {
       print(e.toString());
     }
     setState(() {
-      _inCalling = false;
+      _isStreaming = false;
     });
   }
 
@@ -205,10 +214,10 @@ class _StreamingTestState extends State<StreamingTest> {
   @override
   void initState() {
     super.initState();
-    // SystemChrome.setPreferredOrientations([
-    //   DeviceOrientation.landscapeRight,
-    //   DeviceOrientation.landscapeLeft,
-    // ]);
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.landscapeRight,
+      DeviceOrientation.landscapeLeft,
+    ]);
     initLocalRenderers();
   }
 
@@ -225,145 +234,62 @@ class _StreamingTestState extends State<StreamingTest> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(title: Text('AI Referee Streaming')),
       body: OrientationBuilder(
         builder: (context, orientation) {
-          return SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.all(10),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(5),
-                    child: ConstrainedBox(
-                      // height: MediaQuery.of(context).size.width > 500
-                      //     ? 500
-                      //     : MediaQuery.of(context).size.width - 20,
-                      constraints: BoxConstraints(maxHeight: 500),
-                      // width: MediaQuery.of(context).size.width > 500
-                      //     ? 500
-                      //     : MediaQuery.of(context).size.width - 20,
-                      child: AspectRatio(
-                        aspectRatio: 1,
-                        child: Stack(
-                          children: [
-                            Positioned.fill(
-                              child: Container(
-                                color: Colors.black,
-                                child: _loading
-                                    ? Center(
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 4,
-                                  ),
-                                )
-                                    : Container(),
-                              ),
-                            ),
-                            Positioned.fill(
-                              child: RTCVideoView(
-                                _localRenderer,
-                                // mirror: true,
-                              ),
-                            ),
-                            _inCalling
-                                ? Align(
-                              alignment: Alignment.bottomRight,
-                              child: InkWell(
-                                onTap: _toggleCamera,
-                                child: Container(
-                                  height: 50,
-                                  width: 50,
-                                  color: Colors.black26,
-                                  child: Center(
-                                    child: Icon(
-                                      Icons.cameraswitch,
-                                      color: Colors.grey,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            )
-                                : Container(),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Wrap(
-                      crossAxisAlignment: WrapCrossAlignment.center,
-                      children: [
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text("Transformation: "),
-                            DropdownButton(
-                              value: transformType,
-                              onChanged: (value) {
-                                setState(() {
-                                  transformType = value.toString();
-                                });
-                              },
-                              items: ["none", "edges", "cartoon", "rotate"]
-                                  .map(
-                                    (e) => DropdownMenuItem(
-                                  value: e,
-                                  child: Text(
-                                    e,
-                                  ),
-                                ),
-                              )
-                                  .toList(),
-                            ),
-                          ],
-                        ),
-                        SizedBox(
-                          width: 20,
-                        ),
-                      ],
-                    ),
-                  ),
-                  Expanded(child: Container()),
-                  InkWell(
-                    onTap: _loading
-                        ? () {}
-                        : _inCalling
-                        ? _stopCall
-                        : _makeCall,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: _loading
-                            ? Colors.amber
-                            : _inCalling
-                            ? Colors.red
-                            : Theme.of(context).primaryColor,
-                        borderRadius: BorderRadius.circular(15),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 10, vertical: 5),
-                        child: _loading
-                            ? Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: CircularProgressIndicator(),
-                        )
-                            : Text(
-                          _inCalling ? "STOP" : "START",
-                          style: TextStyle(
-                            fontSize: 24,
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+          return Center(
+            child: Container(
+              margin: EdgeInsets.all(0.0),
+              width: MediaQuery
+                  .of(context)
+                  .size
+                  .width,
+              height: MediaQuery
+                  .of(context)
+                  .size
+                  .height,
+              child: RTCVideoView(_localRenderer),
+              decoration: BoxDecoration(color: Colors.black54),
             ),
           );
         },
+      ),
+      floatingActionButton: Stack(
+        children: <Widget>[
+          Align(
+            alignment: Alignment.bottomLeft,
+            child: FloatingActionButton(
+              onPressed: () {
+                if (_isInferenceVideo) {
+                  setState(() {
+                    _isInferenceVideo = false;
+                    _localRenderer.srcObject = _localStream;
+                  });
+                } else {
+                  setState(() {
+                    _isInferenceVideo = true;
+                    _makeCall();
+                  });
+                }
+              },
+              child: Icon(Icons.switch_camera),
+            ),
+          ),
+          Align(
+            alignment: Alignment.bottomRight,
+            child: FloatingActionButton(
+              onPressed: () {
+                if (_isStreaming) {
+                  _stopCall();
+                } else {
+                  _makeCall();
+                }
+              },
+              child: Icon(_isStreaming ? Icons.stop : Icons.videocam),
+            ),
+          ),
+        ],
+
       ),
     );
   }
