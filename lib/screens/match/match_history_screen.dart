@@ -166,26 +166,33 @@ class _MatchHistoryScreenState extends State<MatchHistoryScreen>
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 ElevatedButton(
-                    onPressed: () async {
-                      String? paymentUrl =
-                          await paymentApiService.initiatePayment();
-                      if (paymentUrl != null) {
-                        Uri url = Uri.parse(paymentUrl);
-                        if (await canLaunchUrl(url)) {
-                          await launchUrl(url,
-                              mode: LaunchMode.externalApplication);
-                        } else {
-                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                              content:
-                                  Text('Unable to launch the payment URL')));
-                        }
-                      } else {
-                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                            content: Text('Failed to initiate payment')));
-                      }
-                    },
+                    onPressed: game.paymentStatus[user?.id] == false
+                        ? () async {
+                            String? paymentUrl =
+                                await paymentApiService.initiatePayment();
+                            if (paymentUrl != null) {
+                              Uri url = Uri.parse(paymentUrl);
+                              if (await canLaunchUrl(url)) {
+                                await launchUrl(url,
+                                    mode: LaunchMode.externalApplication);
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                        content: Text(
+                                            'Unable to launch the payment URL')));
+                              }
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                      content:
+                                          Text('Failed to initiate payment')));
+                            }
+                          }
+                        : null,
                     style: ElevatedButton.styleFrom(
-                        backgroundColor: highlightColor,
+                        backgroundColor: game.paymentStatus[user?.id] == false
+                            ? highlightColor
+                            : Colors.grey,
                         foregroundColor: Colors.white),
                     child: Text('결제하기')),
                 ElevatedButton(
