@@ -16,6 +16,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   String gender = 'MALE'; // Default gender
 
   bool _isFocused = false;
+  bool _isLoading = false; // Add loading state
 
   final AuthService _authService = AuthService();
 
@@ -23,6 +24,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   void _submitForm() async {
     if (_formKey.currentState!.validate()) {
+      setState(() {
+        _isLoading = true; // Start loading
+      });
       _formKey.currentState!.save();
       birthDate =
           '${selectedDate.year}-${selectedDate.month.toString().padLeft(2, '0')}-${selectedDate.day.toString().padLeft(2, '0')}';
@@ -49,6 +53,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Failed to register: $e')),
         );
+      } finally {
+        setState(() {
+          _isLoading = false; // Stop loading
+        });
       }
     }
   }
@@ -121,7 +129,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     ),
                   ),
                   const SizedBox(height: 70),
-                  RegisterButton_signup(),
+                  if (_isLoading) // Show loading indicator
+                    CircularProgressIndicator(),
+                  if (!_isLoading) // Show button when not loading
+                    RegisterButton_signup(),
                 ],
               ),
             ),
@@ -214,7 +225,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
           shape: RoundedRectangleBorder(
               side: BorderSide(width: 1, color: Color(0xFF464EFF)),
               borderRadius: BorderRadius.circular(20))),
-      onPressed: _submitForm,
+      onPressed: _isLoading ? null : _submitForm, // Disable button when loading
       child: Text('가입하기',
           textAlign: TextAlign.center,
           style: TextStyle(
