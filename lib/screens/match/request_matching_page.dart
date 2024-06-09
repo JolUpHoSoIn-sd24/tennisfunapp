@@ -40,6 +40,13 @@ class _RequestMatchingPageState extends State<RequestMatchingPage>
   TextEditingController distanceController = TextEditingController();
 
   @override
+  void initState() {
+    super.initState();
+    minTimeController.text = runningTimeRange.start.round().toString();
+    maxTimeController.text = runningTimeRange.end.round().toString();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -125,8 +132,10 @@ class _RequestMatchingPageState extends State<RequestMatchingPage>
                   "isSingles": isSingles,
                   "maxDistance": maxDistance,
                   "dislikedCourts": dislikedCourtsController.text.split(','),
-                  "minTime": int.tryParse(minTimeController.text),
-                  "maxTime": int.tryParse(maxTimeController.text),
+                  "minTime": int.tryParse(minTimeController.text) ??
+                      runningTimeRange.start.round(),
+                  "maxTime": int.tryParse(maxTimeController.text) ??
+                      runningTimeRange.end.round(),
                   "isReserved": hasReservedCourt,
                   "description": descriptionController.text,
                 };
