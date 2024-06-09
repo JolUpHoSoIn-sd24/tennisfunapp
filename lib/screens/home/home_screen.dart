@@ -15,10 +15,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   static final List<Widget> _widgetOptions = <Widget>[
     MatchInfoScreen(),
-    MatchHistoryScreen(),
     AiRefereeStreaming(),
-    TestScreen1(),
-    TestScreen2(),
+    MatchHistoryScreen(),
   ];
 
   void _onItemTapped(int index) {
@@ -37,8 +35,8 @@ class _HomeScreenState extends State<HomeScreen> {
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
               icon: Icon(Icons.sports_tennis), label: '매칭찾기'),
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: '마이페이지'),
           BottomNavigationBarItem(icon: Icon(Icons.add_a_photo), label: '무인심판'),
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: '마이페이지'),
         ],
         currentIndex: _selectedIndex,
         selectedItemColor: Colors.amber[800],
