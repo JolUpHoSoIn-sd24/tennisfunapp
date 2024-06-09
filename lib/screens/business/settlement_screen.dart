@@ -28,11 +28,11 @@ class _SettlementScreenState extends State<SettlementScreen> {
     }
   }
 
-  void _navigateToCourtSettlement(BuildContext context, String courtId) {
+  void _navigateToCourtSettlement(BuildContext context, String courtId, String courtName) {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => CourtSettlementStatusScreen(courtId: courtId),
+        builder: (context) => CourtSettlementStatusScreen(courtId: courtId, courtName: courtName),
       ),
     );
   }
@@ -74,7 +74,7 @@ class _SettlementScreenState extends State<SettlementScreen> {
                 return ListTile(
                   title: Text(court['courtName']),
                   trailing: ElevatedButton(
-                    onPressed: () => _navigateToCourtSettlement(context, court['courtId']),
+                    onPressed: () => _navigateToCourtSettlement(context, court['courtId'], court['courtName']),
                     child: Text('매출현황'),
                   ),
                 );

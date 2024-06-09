@@ -3,8 +3,9 @@ import '../../services/business_service.dart'; // 경로를 실제 프로젝트�
 
 class CourtSettlementStatusScreen extends StatefulWidget {
   final String courtId;
+  final String courtName;
 
-  CourtSettlementStatusScreen({required this.courtId});
+  CourtSettlementStatusScreen({required this.courtId, required this.courtName});
 
   @override
   _CourtSettlementStatusScreenState createState() => _CourtSettlementStatusScreenState();
@@ -47,7 +48,7 @@ class _CourtSettlementStatusScreenState extends State<CourtSettlementStatusScree
             Center(
               child: Column(
                 children: [
-                  Text('총 매출', style: TextStyle(fontSize: 18)),
+                  Text('총 매출 (${widget.courtName})', style: TextStyle(fontSize: 18)),
                   Text('${courtSettlementInfo!['totalSales']}원', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.blue)),
                 ],
               ),
