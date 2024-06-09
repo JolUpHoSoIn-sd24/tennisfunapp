@@ -52,6 +52,7 @@ class _MatchInfoScreenState extends State<MatchInfoScreen> {
             PromptCard(
               candidate: ongoingGamePrompt,
               onMatchRequest: null, // No match request button for ongoing game
+              icon: Icons.warning, // Warning icon
             ),
           ];
         });
