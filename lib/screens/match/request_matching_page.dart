@@ -131,7 +131,6 @@ class _RequestMatchingPageState extends State<RequestMatchingPage>
                   "objective": objective.toString().split('.').last,
                   "isSingles": isSingles,
                   "maxDistance": maxDistance,
-                  "dislikedCourts": dislikedCourtsController.text.split(','),
                   "minTime": int.tryParse(minTimeController.text) ??
                       runningTimeRange.start.round(),
                   "maxTime": int.tryParse(maxTimeController.text) ??
