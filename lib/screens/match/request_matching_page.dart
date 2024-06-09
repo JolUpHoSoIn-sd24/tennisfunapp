@@ -735,9 +735,9 @@ class _RequestMatchingPageState extends State<RequestMatchingPage>
   Slider MaxDistanceSlider() {
     return Slider(
       value: maxDistance,
-      min: 1,
+      min: 3,
       max: 10,
-      divisions: 9,
+      divisions: 7,
       label: '${maxDistance.round()} Km',
       activeColor: Color(0xFF464EFF),
       inactiveColor: Colors.grey,
