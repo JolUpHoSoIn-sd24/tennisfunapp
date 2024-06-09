@@ -6,6 +6,7 @@ import 'package:tennisfunapp/services/user_api_service.dart';
 import 'package:tennisfunapp/services/payment_api_service.dart';
 import 'package:tennisfunapp/models/game.dart';
 import 'package:tennisfunapp/models/user.dart';
+import 'package:tennisfunapp/screens/match/feedback_screen.dart';
 
 class MatchHistoryScreen extends StatefulWidget {
   @override
@@ -197,7 +198,11 @@ class _MatchHistoryScreenState extends State<MatchHistoryScreen>
                     child: Text('결제하기')),
                 ElevatedButton(
                     onPressed: () {
-                      // Implement review functionality
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => FeedbackScreen()),
+                      );
                     },
                     style: ElevatedButton.styleFrom(
                         backgroundColor: highlightColor,
