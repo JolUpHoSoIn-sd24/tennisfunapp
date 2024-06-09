@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:tennisfunapp/screens/signup/sign_up_screen.dart';
 import 'package:tennisfunapp/services/auth_service.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -108,8 +107,7 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
         ),
         onPressed: () {
-          Navigator.push(
-              context, MaterialPageRoute(builder: (context) => SignUpScreen()));
+          Navigator.pushReplacementNamed(context, '/accountTypeSelection');
         },
         child: Text(
           '회원가입',
