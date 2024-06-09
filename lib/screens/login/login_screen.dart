@@ -34,7 +34,7 @@ class _LoginScreenState extends State<LoginScreen> {
         }
       } else {
         ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(result['message'])));
+            .showSnackBar(SnackBar(content: Text("로그인 실패, 비밀번호를 확인해주세요.")));
       }
     }
   }
@@ -159,46 +159,55 @@ class _LoginScreenState extends State<LoginScreen> {
   Container PasswordFormField() {
     return Container(
       width: 260,
-      height: 40,
-      child: TextFormField(
-        style: TextStyle(
-          color: Color(0xFF646464),
-          fontSize: 12.5,
-          fontFamily: 'Pretendard',
-          fontWeight: FontWeight.w400,
-          height: 1.3,
-          letterSpacing: -0.10,
-        ),
-        textAlignVertical: TextAlignVertical(y: 1.0),
-        obscureText: true,
-        decoration: InputDecoration(
-          filled: true,
-          fillColor: _isFocused ? Colors.white : Color(0xFFEDEDED),
-          hintText: '비밀번호를 입력해주세요',
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(20),
-            borderSide: BorderSide(color: Color(0xFFEDEDED)),
+      child: Column(
+        children: [
+          TextFormField(
+            style: TextStyle(
+              color: Color(0xFF646464),
+              fontSize: 12.5,
+              fontFamily: 'Pretendard',
+              fontWeight: FontWeight.w400,
+              height: 1.3,
+              letterSpacing: -0.10,
+            ),
+            textAlignVertical: TextAlignVertical(y: 1.0),
+            obscureText: true,
+            decoration: InputDecoration(
+              filled: true,
+              fillColor: _isFocused ? Colors.white : Color(0xFFEDEDED),
+              hintText: '비밀번호',
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(20),
+                borderSide: BorderSide(color: Color(0xFFEDEDED)),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(20),
+                borderSide: BorderSide(color: Colors.black),
+              ),
+              errorBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(20),
+                borderSide: BorderSide(color: Colors.red),
+              ),
+              focusedErrorBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(20),
+                borderSide: BorderSide(color: Colors.red),
+              ),
+              errorMaxLines: 2, // 에러 메시지를 한 줄로 제한
+            ),
+            validator: (value) {
+              String pattern =
+                  r'^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=])(?=\S+$).{8,}$';
+              RegExp regex = RegExp(pattern);
+              if (value == null || value.isEmpty) {
+                return '비밀번호를 입력해주세요.';
+              } else if (!regex.hasMatch(value)) {
+                return '비밀번호는 8자 이상, 대문자, 소문자, 숫자, 특수문자(@#\$%^&+=)를 포함해야 합니다.';
+              }
+              return null;
+            },
+            onSaved: (value) => _password = value!,
           ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(20),
-            borderSide: BorderSide(color: Colors.black),
-          ),
-          errorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(20),
-            borderSide: BorderSide(color: Colors.red),
-          ),
-          focusedErrorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(20),
-            borderSide: BorderSide(color: Colors.red),
-          ),
-        ),
-        validator: (value) {
-          if (value == null || value.isEmpty) {
-            return '비밀번호가 올바르지 않습니다.';
-          }
-          return null;
-        },
-        onSaved: (value) => _password = value!,
+        ],
       ),
     );
   }
@@ -206,48 +215,52 @@ class _LoginScreenState extends State<LoginScreen> {
   Container EmailFormField() {
     return Container(
       width: 260,
-      height: 40,
-      child: TextFormField(
-        style: TextStyle(
-          color: Color(0xFF646464),
-          fontSize: 12.5,
-          fontFamily: 'Pretendard',
-          fontWeight: FontWeight.w400,
-          height: 1.3,
-          letterSpacing: -0.10,
-        ),
-        textAlignVertical: TextAlignVertical(y: 1.0),
-        keyboardType: TextInputType.emailAddress,
-        decoration: InputDecoration(
-          filled: true,
-          fillColor: _isFocused ? Colors.white : Color(0xFFEDEDED),
-          hintText: '이메일을 입력해주세요',
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(20),
-            borderSide: BorderSide(color: Color(0xFFEDEDED)),
+      child: Column(
+        children: [
+          TextFormField(
+            style: TextStyle(
+              color: Color(0xFF646464),
+              fontSize: 12.5,
+              fontFamily: 'Pretendard',
+              fontWeight: FontWeight.w400,
+              height: 1.3,
+              letterSpacing: -0.10,
+            ),
+            textAlignVertical: TextAlignVertical(y: 1.0),
+            keyboardType: TextInputType.emailAddress,
+            decoration: InputDecoration(
+              filled: true,
+              fillColor: _isFocused ? Colors.white : Color(0xFFEDEDED),
+              hintText: '이메일을 입력해주세요',
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(20),
+                borderSide: BorderSide(color: Color(0xFFEDEDED)),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(20),
+                borderSide: BorderSide(color: Colors.black),
+              ),
+              errorBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(20),
+                borderSide: BorderSide(color: Colors.red),
+              ),
+              focusedErrorBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(20),
+                borderSide: BorderSide(color: Colors.red),
+              ),
+              errorMaxLines: 1, // 에러 메시지를 한 줄로 제한
+            ),
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return '이메일을 입력해주세요.';
+              } else if (!value.contains('@')) {
+                return '이메일 형식이 올바르지 않습니다.';
+              }
+              return null;
+            },
+            onSaved: (value) => _email = value!,
           ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(20),
-            borderSide: BorderSide(color: Colors.black),
-          ),
-          errorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(20),
-            borderSide: BorderSide(color: Colors.red),
-          ),
-          focusedErrorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(20),
-            borderSide: BorderSide(color: Colors.red),
-          ),
-        ),
-        validator: (value) {
-          if (value == null || value.isEmpty) {
-            return '이메일이 올바르지 않습니다.';
-          } else if (!value.contains('@')) {
-            return '이메일이 올바르지 않습니다.';
-          }
-          return null;
-        },
-        onSaved: (value) => _email = value!,
+        ],
       ),
     );
   }
