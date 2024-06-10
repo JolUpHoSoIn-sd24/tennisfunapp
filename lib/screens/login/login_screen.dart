@@ -55,7 +55,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 const SizedBox(height: 15),
                 PasswordFormField(),
                 BusinessUserCheckbox(), // 추가: 비즈니스 회원 체크박스
-                EmailFindAndPasswordFind(context),
+                //EmailFindAndPasswordFind(context),
                 const SizedBox(height: 54),
                 LoginButton(),
                 const SizedBox(height: 10),
