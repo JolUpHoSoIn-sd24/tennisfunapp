@@ -9,6 +9,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'dart:core';
 import 'package:http/http.dart' as http;
+import 'package:web_socket_channel/web_socket_channel.dart';
 
 class AiRefereeStreaming extends StatefulWidget {
   const AiRefereeStreaming({super.key});
@@ -20,6 +21,12 @@ class AiRefereeStreaming extends StatefulWidget {
 class _AiRefereeStreamingState extends State<AiRefereeStreaming> {
   late MediaStream _localStream;
   late RTCVideoRenderer _localRenderer = RTCVideoRenderer();
+  final webSocketChannel = WebSocketChannel.connect(
+    Uri.parse('wss://ip/ws'));
+
+  late final Stream pointStream;
+  late final Stream frameStream;
+  // TODO Here
 
   bool _isStreaming = false;
 
@@ -32,6 +39,9 @@ class _AiRefereeStreamingState extends State<AiRefereeStreaming> {
     ]);
     initRenderers();
     debugPrint("initState");
+
+    pointStream = webSocketChannel.stream.where((event) => event['type'] == 'point');
+    frameStream = webSocketChannel.stream.where((event) => event['type'] == 'frame');
   }
 
   initRenderers() async {
@@ -49,6 +59,12 @@ class _AiRefereeStreamingState extends State<AiRefereeStreaming> {
       _localStream.getVideoTracks()[0].stop();
     }
     _localRenderer.dispose();
+  }
+
+  @override
+  dispose() {
+    super.dispose();
+    webSocketChannel.sink.close();
   }
 
   // method that return current time
@@ -124,20 +140,48 @@ class _AiRefereeStreamingState extends State<AiRefereeStreaming> {
       appBar: AppBar(title: Text('AI Referee Streaming')),
       body: OrientationBuilder(
         builder: (context, orientation) {
-          return Center(
-            child: Container(
-              margin: EdgeInsets.all(0.0),
-              width: MediaQuery
-                  .of(context)
-                  .size
-                  .width,
-              height: MediaQuery
-                  .of(context)
-                  .size
-                  .height,
-              child: RTCVideoView(_localRenderer),
-              decoration: BoxDecoration(color: Colors.black54),
-            ),
+
+          final width = MediaQuery
+              .of(context)
+              .size
+              .width;
+          final height = MediaQuery
+              .of(context)
+              .size
+              .height;
+
+          // point
+          return StreamBuilder(
+            stream: pointStream,
+            builder: (context, snapshot) {
+              final point = snapshot.data;
+
+              // frame
+              return snapshot.connectionState != ConnectionState.active ?
+              Center(child: CircularProgressIndicator()) :
+              StreamBuilder(
+                stream: frameStream,
+                builder: (context, snapshot) {
+
+                  final frame = snapshot.data;
+
+                  // send byte data via websocket
+                  if (frame != null) {
+                    webSocketChannel.sink.add(_localStream.getVideoTracks()[0].getSettings());
+                  }
+
+                  return Center(
+                    child: Container(
+                      margin: EdgeInsets.all(0.0),
+                      width: width,
+                      height: height,
+                      child: RTCVideoView(_localRenderer),
+                      decoration: BoxDecoration(color: Colors.black54),
+                    ),
+                  );
+                }
+              );
+            }
           );
         },
       ),
