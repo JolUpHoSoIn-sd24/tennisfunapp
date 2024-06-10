@@ -58,62 +58,64 @@ class _MatchHistoryDetailScreenState extends State<MatchHistoryDetailScreen> {
       case 'AWAIT_FEEDBACK':
         return '피드백 대기 중 - 평가를 기다리는 중';
       case 'AWAIT_SCORE_CONFIRM':
-        return '점수 확정 대기중 - 모든 플레이어의 점수가 같아질 때까지 기다리는 중';
+        return '점수 확정 대기중 \n- 모든 플레이어의 점수가 같아질 때까지 기다리는 중';
       case 'POSTGAME':
-        return '경기 완료 - 모든 점수가 확정되었습니다';
+        return '경기 완료 \n- 모든 점수가 확정되었습니다';
       default:
         return state;
     }
   }
 
-  Widget _buildPlayerDetails(List<dynamic> players,
-      Map<String, dynamic> paymentStatus, Color highlightColor) {
+  Widget _buildPlayerDetails(List<dynamic> players, List<dynamic> scores,
+      String opponentId, Color highlightColor) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text('플레이어 정보',
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
         ...players.map((player) {
-          bool hasPaid = paymentStatus[player['userId']] ?? false;
+          final score = scores.firstWhere(
+              (score) => score['userId'] == player['userId'],
+              orElse: () => null);
+          final opponentScore = scores.firstWhere(
+              (score) => score['userId'] == opponentId,
+              orElse: () => null);
+
           return Card(
             margin: EdgeInsets.symmetric(vertical: 8),
             elevation: 4,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(10),
             ),
-            child: ListTile(
-              leading: CircleAvatar(
-                child: Text(player['name'][0]),
-                backgroundColor: highlightColor,
-              ),
-              title: Text(player['name']),
-              subtitle: Column(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('NTRP: ${player['ntrp']}'),
-                  Text('나이: ${player['age']}'),
-                  Text('성별: ${_translateGender(player['gender'])}'),
-                ],
-              ),
-              trailing: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        hasPaid ? Icons.check_circle : Icons.cancel,
-                        color: hasPaid ? Colors.green : Colors.red,
-                      ),
-                      SizedBox(width: 4),
-                      Text(
-                        hasPaid ? '결제 완료' : '미결제',
-                        style: TextStyle(
-                          color: hasPaid ? Colors.green : Colors.red,
-                          fontSize: 12,
-                        ),
-                      ),
-                    ],
+                  ListTile(
+                    leading: CircleAvatar(
+                      child: Text(player['name'][0]),
+                      backgroundColor: highlightColor,
+                    ),
+                    title: Text(player['name'],
+                        style: TextStyle(fontWeight: FontWeight.bold)),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('NTRP: ${player['ntrp']}',
+                            style: TextStyle(fontWeight: FontWeight.bold)),
+                        Text('나이: ${player['age']}',
+                            style: TextStyle(fontWeight: FontWeight.bold)),
+                        Text('성별: ${_translateGender(player['gender'])}',
+                            style: TextStyle(fontWeight: FontWeight.bold)),
+                        Text(
+                            '입력한 플레이어의 점수: ${score['scoreDetailDto']['userScore']}',
+                            style: TextStyle(fontWeight: FontWeight.bold)),
+                        Text(
+                            '입력한 상대방의 점수: ${opponentScore['scoreDetailDto']['opponentScore']}',
+                            style: TextStyle(fontWeight: FontWeight.bold)),
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -125,7 +127,7 @@ class _MatchHistoryDetailScreenState extends State<MatchHistoryDetailScreen> {
   }
 
   Widget _buildMatchCard(dynamic match, Color highlightColor) {
-    final game = match['game'];
+    final game = match['gameDetailsDto'];
     return Card(
       elevation: 4,
       shape: RoundedRectangleBorder(
@@ -141,87 +143,58 @@ class _MatchHistoryDetailScreenState extends State<MatchHistoryDetailScreen> {
               children: [
                 Icon(Icons.sports_tennis, color: highlightColor, size: 30),
                 SizedBox(width: 8),
-                Text('매칭 결과',
+                Text('${match['elapsedTime']} 게임 결과',
                     style:
                         TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
               ],
             ),
             Divider(color: highlightColor, thickness: 2),
             SizedBox(height: 16),
-            Text('경기 ID: ${game['gameId']}',
+            Text('코트: ${match['courtName']}',
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-            Text('코트: ${game['matchDetails']['courtId']}',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-            Text('코트 타입: ${game['matchDetails']['courtType']}',
+            Text('코트 타입: ${game['court']['surfaceType']}',
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
             Text('대관 비용: ${game['rentalCost'].toInt()}원',
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
             Text(
-                '경기 시간: ${DateFormat('yyyy년 MM월 dd일 HH:mm').format(DateTime.parse(game['matchDetails']['startTime']))} - ${DateFormat('HH:mm').format(DateTime.parse(game['matchDetails']['endTime']))}',
+                '경기 시간: ${DateFormat('yyyy년 MM월 dd일 HH:mm').format(DateTime.parse(game['startTime']))} - ${DateFormat('HH:mm').format(DateTime.parse(game['endTime']))}',
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-            Text('상태: ${_translateGameState(game['postGameStatus'])}',
+            Text('상태: ${_translateGameState(game['state'])}',
                 style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
-                    color: game['postGameStatus'] == 'PREGAME'
+                    color: game['state'] == 'AWAIT_SCORE_CONFIRM'
                         ? Colors.red
                         : Colors.green)),
             SizedBox(height: 24),
             _buildPlayerDetails(
               game['players'] as List<dynamic>? ?? [],
-              game['paymentStatus'] as Map<String, dynamic>? ?? {},
+              match['scores'] as List<dynamic>? ?? [],
+              match['opponentId'],
               highlightColor,
             ),
             SizedBox(height: 24),
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 ElevatedButton(
-                  onPressed: game['paymentStatus'][match['opponentId']] == false
-                      ? () async {
-                          String? paymentUrl =
-                              await paymentApiService.initiatePayment();
-                          if (paymentUrl != null) {
-                            Uri url = Uri.parse(paymentUrl);
-                            if (await canLaunchUrl(url)) {
-                              await launchUrl(url,
-                                  mode: LaunchMode.externalApplication);
-                            } else {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                      content: Text(
-                                          'Unable to launch the payment URL')));
+                  onPressed:
+                      game['state'] != 'PREGAME' && game['state'] != 'POSTGAME'
+                          ? () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => FeedbackScreen()),
+                              );
                             }
-                          } else {
-                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                                content: Text('Failed to initiate payment')));
-                          }
-                        }
-                      : null,
+                          : null,
                   style: ElevatedButton.styleFrom(
-                      backgroundColor:
-                          game['paymentStatus'][match['opponentId']] == false
-                              ? highlightColor
-                              : Colors.grey,
-                      foregroundColor: Colors.white),
-                  child: Text('결제하기'),
-                ),
-                ElevatedButton(
-                  onPressed: game['postGameStatus'] != 'PREGAME'
-                      ? () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => FeedbackScreen()),
-                          );
-                        }
-                      : null,
-                  style: ElevatedButton.styleFrom(
-                      backgroundColor: game['postGameStatus'] != 'PREGAME'
+                      backgroundColor: game['state'] != 'PREGAME' &&
+                              game['state'] != 'POSTGAME'
                           ? highlightColor
                           : Colors.grey,
                       foregroundColor: Colors.white),
-                  child: Text('평가하기'),
+                  child: Text('점수 수정하기'),
                 ),
               ],
             )
