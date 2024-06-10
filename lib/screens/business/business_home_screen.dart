@@ -36,7 +36,7 @@ class _BusinessHomeScreenState extends State<BusinessHomeScreen> {
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(icon: Icon(Icons.sports_tennis), label: '코트'),
-          BottomNavigationBarItem(icon: Icon(Icons.attach_money), label: '정산'),
+          BottomNavigationBarItem(icon: Icon(Icons.attach_money), label: '매출'),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: '마이페이지'),
         ],
         currentIndex: _selectedIndex,

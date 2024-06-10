@@ -22,14 +22,15 @@ class _RequestMatchingPageState extends State<RequestMatchingPage>
   MatchObjective objective = MatchObjective.FUN;
   bool isFocused = false;
   bool hasReservedCourt = false;
-  RangeValues runningTimeRange = const RangeValues(30, 240);
+  RangeValues runningTimeRange = const RangeValues(30, 120);
+  double maxDistance = 5.0;
   DateTime? startDate = DateTime.now();
   TimeOfDay? startTime = TimeOfDay.now();
-  DateTime? endDate = DateTime.now().add(Duration(days: 1));
-  TimeOfDay? endTime = TimeOfDay.now();
+  DateTime? endDate = DateTime.now();
+  TimeOfDay? endTime =
+      TimeOfDay.now().replacing(minute: TimeOfDay.now().minute + 1);
   String money = '';
   String message = '';
-  double distance = 0;
   TextEditingController userIdController = TextEditingController();
   TextEditingController dislikedCourtsController = TextEditingController();
   TextEditingController minTimeController = TextEditingController();
@@ -38,6 +39,103 @@ class _RequestMatchingPageState extends State<RequestMatchingPage>
   TextEditingController descriptionController = TextEditingController();
   TextEditingController reservationCourtIdController = TextEditingController();
   TextEditingController distanceController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    minTimeController.text = runningTimeRange.start.round().toString();
+    maxTimeController.text = runningTimeRange.end.round().toString();
+  }
+
+  void _validateAndSetStartDate(DateTime picked) {
+    if (endDate != null && picked.isAfter(endDate!)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("시작 날짜는 종료 날짜보다 이후일 수 없습니다.")),
+      );
+    } else {
+      setState(() {
+        startDate = picked;
+      });
+    }
+  }
+
+  void _validateAndSetStartTime(TimeOfDay picked) {
+    if (endDate != null && endTime != null) {
+      DateTime startDateTime = DateTime(
+        startDate!.year,
+        startDate!.month,
+        startDate!.day,
+        picked.hour,
+        picked.minute,
+      );
+      DateTime endDateTime = DateTime(
+        endDate!.year,
+        endDate!.month,
+        endDate!.day,
+        endTime!.hour,
+        endTime!.minute,
+      );
+      if (startDateTime.isAfter(endDateTime) ||
+          startDateTime.isAtSameMomentAs(endDateTime)) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("시작 시간은 종료 시간과 같거나 이후일 수 없습니다.")),
+        );
+      } else {
+        setState(() {
+          startTime = picked;
+        });
+      }
+    } else {
+      setState(() {
+        startTime = picked;
+      });
+    }
+  }
+
+  void _validateAndSetEndDate(DateTime picked) {
+    if (startDate != null && picked.isBefore(startDate!)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("종료 날짜는 시작 날짜보다 이전일 수 없습니다.")),
+      );
+    } else {
+      setState(() {
+        endDate = picked;
+      });
+    }
+  }
+
+  void _validateAndSetEndTime(TimeOfDay picked) {
+    if (startDate != null && startTime != null) {
+      DateTime startDateTime = DateTime(
+        startDate!.year,
+        startDate!.month,
+        startDate!.day,
+        startTime!.hour,
+        startTime!.minute,
+      );
+      DateTime endDateTime = DateTime(
+        endDate!.year,
+        endDate!.month,
+        endDate!.day,
+        picked.hour,
+        picked.minute,
+      );
+      if (endDateTime.isBefore(startDateTime) ||
+          endDateTime.isAtSameMomentAs(startDateTime)) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("종료 시간은 시작 시간과 같거나 이전일 수 없습니다.")),
+        );
+      } else {
+        setState(() {
+          endTime = picked;
+        });
+      }
+    } else {
+      setState(() {
+        endTime = picked;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -78,31 +176,21 @@ class _RequestMatchingPageState extends State<RequestMatchingPage>
           FullWidthThinBox(),
           Label('희망시간'),
           AvailableTime(context),
-
           FullWidthThinBox(),
           Label('선호 러닝 타임'),
           RunningTimeRangeSlider(),
-          // MinTime(),
-          // MaxTime(),
-
+          FullWidthThinBox(),
+          Label('최대 거리'),
+          MaxDistanceSlider(),
           FullWidthThinBox(),
           Label('경기 목적'),
-          // Intense(),
-          // Fun(),
-          // Any(),
           ObjectiveButton(),
-
           FullWidthThinBox(),
           Label('경기 유형'),
-          // Single(),
-          // Double(),
           isSinglesButton(),
-
           FullWidthThinBox(),
           Label('한 줄 소개'),
           DescriptionFormField(),
-          // Description(),
-
           FullWidthThinBox(),
           Padding(
             padding: EdgeInsets.symmetric(vertical: 20),
@@ -133,14 +221,11 @@ class _RequestMatchingPageState extends State<RequestMatchingPage>
                       : null,
                   "objective": objective.toString().split('.').last,
                   "isSingles": isSingles,
-                  "x":
-                      126.887847771379, // Provide correct values or obtain them dynamically
-                  "y":
-                      37.5204279064529, // Provide correct values or obtain them dynamically
-                  "maxDistance": double.tryParse(distanceController.text),
-                  "dislikedCourts": dislikedCourtsController.text.split(','),
-                  "minTime": int.tryParse(minTimeController.text),
-                  "maxTime": int.tryParse(maxTimeController.text),
+                  "maxDistance": maxDistance,
+                  "minTime": int.tryParse(minTimeController.text) ??
+                      runningTimeRange.start.round(),
+                  "maxTime": int.tryParse(maxTimeController.text) ??
+                      runningTimeRange.end.round(),
                   "isReserved": hasReservedCourt,
                   "description": descriptionController.text,
                 };
@@ -207,13 +292,11 @@ class _RequestMatchingPageState extends State<RequestMatchingPage>
               final DateTime? picked = await showDatePicker(
                 context: context,
                 initialDate: endDate ?? DateTime.now(),
-                firstDate: DateTime(2000),
-                lastDate: DateTime(2100),
+                firstDate: DateTime.now(),
+                lastDate: DateTime.now().add(Duration(days: 7)),
               );
               if (picked != null && picked != endDate) {
-                setState(() {
-                  endDate = picked;
-                });
+                _validateAndSetEndDate(picked);
               }
             },
             child: Text(
@@ -237,9 +320,7 @@ class _RequestMatchingPageState extends State<RequestMatchingPage>
                 initialTime: endTime ?? TimeOfDay.now(),
               );
               if (picked != null && picked != endTime) {
-                setState(() {
-                  endTime = picked;
-                });
+                _validateAndSetEndTime(picked);
               }
             },
             child: Text(
@@ -457,13 +538,11 @@ class _RequestMatchingPageState extends State<RequestMatchingPage>
               final DateTime? picked = await showDatePicker(
                 context: context,
                 initialDate: endDate ?? DateTime.now(),
-                firstDate: DateTime(2000),
-                lastDate: DateTime(2100),
+                firstDate: DateTime.now(),
+                lastDate: DateTime.now().add(Duration(days: 7)),
               );
               if (picked != null && picked != endDate) {
-                setState(() {
-                  endDate = picked;
-                });
+                _validateAndSetEndDate(picked);
               }
             },
             child: Container(
@@ -493,9 +572,7 @@ class _RequestMatchingPageState extends State<RequestMatchingPage>
                 initialTime: endTime ?? TimeOfDay.now(),
               );
               if (picked != null && picked != endTime) {
-                setState(() {
-                  endTime = picked;
-                });
+                _validateAndSetEndTime(picked);
               }
             },
             child: Container(
@@ -532,15 +609,11 @@ class _RequestMatchingPageState extends State<RequestMatchingPage>
               final DateTime? picked = await showDatePicker(
                 context: context,
                 initialDate: startDate ?? DateTime.now(),
-                firstDate: DateTime(2000),
-                lastDate: DateTime(2100),
+                firstDate: DateTime.now(),
+                lastDate: DateTime.now().add(Duration(days: 7)),
               );
               if (picked != null && picked != startDate) {
-                setState(() {
-                  startDate = picked;
-
-                  endDate = picked;
-                });
+                _validateAndSetStartDate(picked);
               }
             },
             child: Container(
@@ -570,9 +643,7 @@ class _RequestMatchingPageState extends State<RequestMatchingPage>
                 initialTime: startTime ?? TimeOfDay.now(),
               );
               if (picked != null && picked != startTime) {
-                setState(() {
-                  startTime = picked;
-                });
+                _validateAndSetStartTime(picked);
               }
             },
             child: Container(
@@ -601,9 +672,7 @@ class _RequestMatchingPageState extends State<RequestMatchingPage>
                 initialTime: endTime ?? TimeOfDay.now(),
               );
               if (picked != null && picked != endTime) {
-                setState(() {
-                  endTime = picked;
-                });
+                _validateAndSetEndTime(picked);
               }
             },
             child: Container(
@@ -644,20 +713,37 @@ class _RequestMatchingPageState extends State<RequestMatchingPage>
   RangeSlider RunningTimeRangeSlider() {
     return RangeSlider(
       activeColor: Color(0xFF464EFF),
-      inactiveColor: Color(0xFFEDEDED),
+      inactiveColor: Colors.grey,
       values: runningTimeRange,
       min: 30,
-      max: 240,
-      divisions: 7,
+      max: 120,
+      divisions: 3,
       labels: RangeLabels(
-        runningTimeRange.start.round().toString(),
-        runningTimeRange.end.round().toString(),
+        '${runningTimeRange.start.round()} minutes',
+        '${runningTimeRange.end.round()} minutes',
       ),
       onChanged: (RangeValues values) {
         setState(() {
           runningTimeRange = values;
           minTimeController.text = values.start.round().toString();
           maxTimeController.text = values.end.round().toString();
+        });
+      },
+    );
+  }
+
+  Slider MaxDistanceSlider() {
+    return Slider(
+      value: maxDistance,
+      min: 3,
+      max: 10,
+      divisions: 7,
+      label: '${maxDistance.round()} Km',
+      activeColor: Color(0xFF464EFF),
+      inactiveColor: Colors.grey,
+      onChanged: (double value) {
+        setState(() {
+          maxDistance = value;
         });
       },
     );
@@ -766,16 +852,19 @@ class _RequestMatchingPageState extends State<RequestMatchingPage>
                 objectivebutton[1] = false;
                 objectivebutton[2] = false;
                 objective = MatchObjective.FUN;
+                break;
               case 1:
                 objectivebutton[0] = false;
                 objectivebutton[1] = true;
                 objectivebutton[2] = false;
                 objective = MatchObjective.INTENSE;
+                break;
               case 2:
                 objectivebutton[0] = false;
                 objectivebutton[1] = false;
                 objectivebutton[2] = true;
                 objective = MatchObjective.ANY;
+                break;
             }
           });
         },
