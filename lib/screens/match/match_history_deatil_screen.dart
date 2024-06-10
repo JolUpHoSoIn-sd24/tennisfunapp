@@ -58,23 +58,22 @@ class _MatchHistoryDetailScreenState extends State<MatchHistoryDetailScreen> {
       case 'AWAIT_FEEDBACK':
         return '피드백 대기 중 - 평가를 기다리는 중';
       case 'AWAIT_SCORE_CONFIRM':
-        return '점수 확정 대기중 - 모든 플레이어의 점수가 같아질 때까지 기다리는 중';
+        return '점수 확정 대기중 \n- 모든 플레이어의 점수가 같아질 때까지 기다리는 중';
       case 'POSTGAME':
-        return '경기 완료 - 모든 점수가 확정되었습니다';
+        return '경기 완료 \n- 모든 점수가 확정되었습니다';
       default:
         return state;
     }
   }
 
-  Widget _buildPlayerDetails(List<dynamic> players,
-      Map<String, dynamic> paymentStatus, Color highlightColor) {
+  Widget _buildPlayerDetails(List<dynamic> players, Color highlightColor) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text('플레이어 정보',
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
         ...players.map((player) {
-          bool hasPaid = paymentStatus[player['userId']] ?? false;
+          bool hasPaid = player['feedback'] ?? false;
           return Card(
             margin: EdgeInsets.symmetric(vertical: 8),
             elevation: 4,
@@ -107,7 +106,7 @@ class _MatchHistoryDetailScreenState extends State<MatchHistoryDetailScreen> {
                       ),
                       SizedBox(width: 4),
                       Text(
-                        hasPaid ? '결제 완료' : '미결제',
+                        hasPaid ? '피드백 완료' : '피드백 미완료',
                         style: TextStyle(
                           color: hasPaid ? Colors.green : Colors.red,
                           fontSize: 12,
@@ -125,7 +124,7 @@ class _MatchHistoryDetailScreenState extends State<MatchHistoryDetailScreen> {
   }
 
   Widget _buildMatchCard(dynamic match, Color highlightColor) {
-    final game = match['game'];
+    final game = match['gameDetailsDto'];
     return Card(
       elevation: 4,
       shape: RoundedRectangleBorder(
@@ -141,87 +140,56 @@ class _MatchHistoryDetailScreenState extends State<MatchHistoryDetailScreen> {
               children: [
                 Icon(Icons.sports_tennis, color: highlightColor, size: 30),
                 SizedBox(width: 8),
-                Text('매칭 결과',
+                Text('${match['elapsedTime']} 게임 결과',
                     style:
                         TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
               ],
             ),
             Divider(color: highlightColor, thickness: 2),
             SizedBox(height: 16),
-            Text('경기 ID: ${game['gameId']}',
+            Text('코트: ${match['courtName']}',
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-            Text('코트: ${game['matchDetails']['courtId']}',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-            Text('코트 타입: ${game['matchDetails']['courtType']}',
+            Text('코트 타입: ${game['court']['surfaceType']}',
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
             Text('대관 비용: ${game['rentalCost'].toInt()}원',
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
             Text(
-                '경기 시간: ${DateFormat('yyyy년 MM월 dd일 HH:mm').format(DateTime.parse(game['matchDetails']['startTime']))} - ${DateFormat('HH:mm').format(DateTime.parse(game['matchDetails']['endTime']))}',
+                '경기 시간: ${DateFormat('yyyy년 MM월 dd일 HH:mm').format(DateTime.parse(game['startTime']))} - ${DateFormat('HH:mm').format(DateTime.parse(game['endTime']))}',
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-            Text('상태: ${_translateGameState(game['postGameStatus'])}',
+            Text('상태: ${_translateGameState(game['state'])}',
                 style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
-                    color: game['postGameStatus'] == 'PREGAME'
+                    color: game['state'] == 'AWAIT_SCORE_CONFIRM'
                         ? Colors.red
                         : Colors.green)),
             SizedBox(height: 24),
             _buildPlayerDetails(
               game['players'] as List<dynamic>? ?? [],
-              game['paymentStatus'] as Map<String, dynamic>? ?? {},
               highlightColor,
             ),
             SizedBox(height: 24),
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 ElevatedButton(
-                  onPressed: game['paymentStatus'][match['opponentId']] == false
-                      ? () async {
-                          String? paymentUrl =
-                              await paymentApiService.initiatePayment();
-                          if (paymentUrl != null) {
-                            Uri url = Uri.parse(paymentUrl);
-                            if (await canLaunchUrl(url)) {
-                              await launchUrl(url,
-                                  mode: LaunchMode.externalApplication);
-                            } else {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                      content: Text(
-                                          'Unable to launch the payment URL')));
+                  onPressed:
+                      game['state'] != 'PREGAME' && game['state'] != 'POSTGAME'
+                          ? () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => FeedbackScreen()),
+                              );
                             }
-                          } else {
-                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                                content: Text('Failed to initiate payment')));
-                          }
-                        }
-                      : null,
+                          : null,
                   style: ElevatedButton.styleFrom(
-                      backgroundColor:
-                          game['paymentStatus'][match['opponentId']] == false
-                              ? highlightColor
-                              : Colors.grey,
-                      foregroundColor: Colors.white),
-                  child: Text('결제하기'),
-                ),
-                ElevatedButton(
-                  onPressed: game['postGameStatus'] != 'PREGAME'
-                      ? () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => FeedbackScreen()),
-                          );
-                        }
-                      : null,
-                  style: ElevatedButton.styleFrom(
-                      backgroundColor: game['postGameStatus'] != 'PREGAME'
+                      backgroundColor: game['state'] != 'PREGAME' &&
+                              game['state'] != 'POSTGAME'
                           ? highlightColor
                           : Colors.grey,
                       foregroundColor: Colors.white),
-                  child: Text('평가하기'),
+                  child: Text('점수 수정하기'),
                 ),
               ],
             )
