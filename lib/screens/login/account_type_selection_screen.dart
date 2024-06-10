@@ -7,6 +7,12 @@ class AccountTypeSelectionScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text('회원가입'),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pushReplacementNamed(context, '/login');
+          },
+        ),
       ),
       body: Center(
         child: Column(

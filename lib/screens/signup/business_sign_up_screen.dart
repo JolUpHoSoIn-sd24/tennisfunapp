@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:tennisfunapp/screens/court/register_court_address_screen.dart';
+import 'package:tennisfunapp/services/business_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class BusinessSignUpScreen extends StatefulWidget {
   @override
@@ -16,6 +17,7 @@ class _BusinessSignUpScreenState extends State<BusinessSignUpScreen> {
   final TextEditingController _businessNumberController = TextEditingController();
   final TextEditingController _bankNameController = TextEditingController();
   final TextEditingController _accountNumberController = TextEditingController();
+  final BusinessService _businessService = BusinessService();
 
   @override
   void dispose() {
@@ -44,11 +46,70 @@ class _BusinessSignUpScreenState extends State<BusinessSignUpScreen> {
     }
   }
 
+  String? _validateEmail(String? value) {
+    if (value == null || value.isEmpty) {
+      return '아이디를 입력해주세요.';
+    }
+    if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
+      return '유효한 이메일 주소를 입력해주세요.';
+    }
+    return null;
+  }
+
+  String? _validatePassword(String? value) {
+    String pattern = r'^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=])(?=\S+$).{8,}$';
+    if (value == null || value.isEmpty) {
+      return '비밀번호를 입력해주세요.';
+    }
+    if (!RegExp(pattern).hasMatch(value)) {
+      return '비밀번호는 최소 8자 이상이어야 하며, 대문자, 소문자, 숫자, 특수문자(@#\$%^&+=)를 포함해야 합니다. 공백은 허용되지 않습니다.';
+    }
+    return null;
+  }
+
+  void _submitForm() async {
+    if (_formKey.currentState!.validate()) {
+      Map<String, dynamic> requestBody = {
+        "emailId": _emailController.text,
+        "password": _passwordController.text,
+        "name": _nameController.text,
+        "birthDate": _birthdateController.text,
+        "businessRegistrationNumber": _businessNumberController.text,
+        "bank": _bankNameController.text,
+        "accountNumber": _accountNumberController.text,
+        "documentUrls": ["https://example.com/document1.pdf", "https://example.com/document2.pdf"],
+        "shopName": "MyShop", // 이 부분은 실제로 입력 받거나 다른 방법으로 처리
+        "location": {
+          "x": 127.07134,
+          "y": 37.251521
+        }
+      };
+
+      try {
+        var response = await _businessService.registerBusiness(requestBody);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('회원가입 성공!')),
+        );
+        Navigator.pushReplacementNamed(context, '/login');
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('회원가입 실패: $e')),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('테니스장 사업자 회원가입'),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pushReplacementNamed(context, '/accountTypeSelection');
+          },
+        ),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
@@ -64,15 +125,7 @@ class _BusinessSignUpScreenState extends State<BusinessSignUpScreen> {
                   hintText: 'tennis@fun.com',
                 ),
                 keyboardType: TextInputType.emailAddress,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return '아이디를 입력해주세요.';
-                  }
-                  if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
-                    return '유효한 이메일 주소를 입력해주세요.';
-                  }
-                  return null;
-                },
+                validator: _validateEmail,
               ),
               SizedBox(height: 16),
               TextFormField(
@@ -82,12 +135,7 @@ class _BusinessSignUpScreenState extends State<BusinessSignUpScreen> {
                   hintText: '비밀번호는 여기에 써 주세요.',
                 ),
                 obscureText: true,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return '비밀번호를 입력해주세요.';
-                  }
-                  return null;
-                },
+                validator: _validatePassword,
               ),
               SizedBox(height: 16),
               TextFormField(
@@ -151,7 +199,7 @@ class _BusinessSignUpScreenState extends State<BusinessSignUpScreen> {
                   ),
                   ElevatedButton(
                     onPressed: () {
-                      Navigator.pushReplacementNamed(context, '/registerTennisCourt');
+                      Navigator.pushReplacementNamed(context, '/registerCourtAddress');
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Color(0xFF464EFF), // 버튼 색상
@@ -214,11 +262,7 @@ class _BusinessSignUpScreenState extends State<BusinessSignUpScreen> {
               SizedBox(height: 16),
               Center(
                 child: ElevatedButton(
-                  onPressed: () {
-                    if (_formKey.currentState!.validate()) {
-                      // 회원가입 처리
-                    }
-                  },
+                  onPressed: _submitForm,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Color(0xFF464EFF), // 버튼 색상
                     padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),

@@ -21,6 +21,12 @@ class _RegisterCourtAddressScreenState extends State<RegisterCourtAddressScreen>
     return Scaffold(
       appBar: AppBar(
         title: Text('테니스장 등록'),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.of(context).pushNamedAndRemoveUntil('/businessSignUp', (Route<dynamic> route) => false);
+          },
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -53,7 +59,17 @@ class _RegisterCourtAddressScreenState extends State<RegisterCourtAddressScreen>
                 onPressed: () {
                   // 테니스장 등록 처리
                 },
-                child: Text('검색하기'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Color(0xFF464EFF), // 버튼 색상
+                  padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                child: Text(
+                  '검색하기',
+                  style: TextStyle(fontSize: 16, color: Colors.white), // 글씨 색상 흰색으로 변경
+                ),
               ),
             ),
           ],
