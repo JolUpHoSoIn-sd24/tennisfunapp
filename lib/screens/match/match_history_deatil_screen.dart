@@ -21,6 +21,10 @@ class _MatchHistoryDetailScreenState extends State<MatchHistoryDetailScreen> {
   }
 
   void loadMatchHistory() async {
+    setState(() {
+      isLoading = true;
+    });
+
     try {
       var fetchedMatches = await matchApiService.fetchMatchHistory();
       setState(() {
@@ -199,7 +203,9 @@ class _MatchHistoryDetailScreenState extends State<MatchHistoryDetailScreen> {
                                     0,
                               ),
                             ),
-                          );
+                          ).then((_) {
+                            loadMatchHistory();
+                          });
                         }
                       : null,
                   style: ElevatedButton.styleFrom(
