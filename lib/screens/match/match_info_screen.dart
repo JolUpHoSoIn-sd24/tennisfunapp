@@ -79,7 +79,7 @@ class _MatchInfoScreenState extends State<MatchInfoScreen> {
               ),
               onMatchRequest: () async {
                 final result =
-                    await Navigator.pushNamed(context, '/match-request');
+                await Navigator.pushNamed(context, '/match-request');
                 if (result != null && result == true) {
                   initializeMatchInfo();
                 }
@@ -94,21 +94,21 @@ class _MatchInfoScreenState extends State<MatchInfoScreen> {
         // 결과가 빈 배열이 아닌 경우 (매치 결과 표시)
         stopPolling(); // 매칭 결과가 생기면 polling 중지
         List<CandidateModel> candidates = matchResults?.map((result) {
-              final opponent = result['opponent'];
-              final matchDetails = result['matchDetails'];
-              final court = result['court'];
-              return CandidateModel(
-                id: result['id'],
-                opponent: opponent,
-                matchDetails: matchDetails,
-                court: court,
-                status: result['status'],
-                name: opponent['name'],
-                skillLevel: '${opponent['ntrp']}',
-                age: opponent['age'],
-                gender: opponent['gender'],
-              );
-            })?.toList() ??
+          final opponent = result['opponent'];
+          final matchDetails = result['matchDetails'];
+          final court = result['court'];
+          return CandidateModel(
+            id: result['id'],
+            opponent: opponent,
+            matchDetails: matchDetails,
+            court: court,
+            status: result['status'],
+            name: opponent['name'],
+            skillLevel: '${opponent['ntrp']}',
+            age: opponent['age'],
+            gender: opponent['gender'],
+          );
+        })?.toList() ??
             [];
 
         setState(() {
@@ -153,7 +153,7 @@ class _MatchInfoScreenState extends State<MatchInfoScreen> {
             candidate: prompt[0],
             onMatchRequest: () async {
               final result =
-                  await Navigator.pushNamed(context, '/match-request');
+              await Navigator.pushNamed(context, '/match-request');
               if (result != null && result == true) {
                 initializeMatchInfo();
               }
@@ -217,9 +217,9 @@ class _MatchInfoScreenState extends State<MatchInfoScreen> {
               String? id = (cards[index] as CandidateCard).candidate.id;
               if (id != null) {
                 String feedback =
-                    direction == CardSwiperDirection.right ? 'LIKE' : 'DISLIKE';
+                direction == CardSwiperDirection.right ? 'LIKE' : 'DISLIKE';
                 bool success =
-                    await matchApiService.submitMatchFeedback(id, feedback);
+                await matchApiService.submitMatchFeedback(id, feedback);
                 setState(() {
                   if (success) {
                     ScaffoldMessenger.of(context).showSnackBar(
@@ -253,7 +253,10 @@ class _MatchInfoScreenState extends State<MatchInfoScreen> {
           scale: 0.9,
           threshold: 30,
           maxAngle: 30,
-          allowedSwipeDirection: AllowedSwipeDirection.all(),
+          allowedSwipeDirection: AllowedSwipeDirection.only(
+            left: true,
+            right: true,
+          ),
           isLoop: true,
         ),
       ),
