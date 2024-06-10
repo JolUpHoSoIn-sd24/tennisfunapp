@@ -16,12 +16,16 @@ class _SignUpScreenState extends State<SignUpScreen> {
   String birthDate = ''; // 생년월일 필드
   String gender = 'MALE'; // Default gender
 
-  bool _isFocused = false;
   bool _isLoading = false; // Add loading state
 
   final AuthService _authService = AuthService();
 
   DateTime selectedDate = DateTime.now();
+
+  String? _emailErrorMessage;
+  String? _passwordErrorMessage;
+  String? _confirmPasswordErrorMessage;
+  String? _nameErrorMessage;
 
   void _submitForm() async {
     if (_formKey.currentState!.validate()) {
@@ -90,17 +94,20 @@ class _SignUpScreenState extends State<SignUpScreen> {
               child: Column(
                 children: [
                   FormFieldLabel('이메일'),
-                  const SizedBox(height: 5),
+                  const SizedBox(height: 10),
                   EmailFormField_signup(),
-                  const SizedBox(height: 20),
+                  ErrorMessage(_emailErrorMessage),
+                  const SizedBox(height: 30),
                   FormFieldLabel('비밀번호'),
-                  const SizedBox(height: 5),
+                  const SizedBox(height: 10),
                   PasswordFormField_signup(),
-                  const SizedBox(height: 20),
-                  FormFieldLabel('비밀번호 재확인'), // Label for confirm password
-                  const SizedBox(height: 5),
-                  ConfirmPasswordFormField_signup(), // Field for confirm password
-                  const SizedBox(height: 20),
+                  ErrorMessage(_passwordErrorMessage),
+                  const SizedBox(height: 30),
+                  FormFieldLabel('비밀번호 재확인'),
+                  const SizedBox(height: 10),
+                  ConfirmPasswordFormField_signup(),
+                  ErrorMessage(_confirmPasswordErrorMessage),
+                  const SizedBox(height: 30),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: <Widget>[
@@ -122,21 +129,22 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 20),
+                  ErrorMessage(_nameErrorMessage),
+                  const SizedBox(height: 30),
                   FormFieldLabel('NTRP'),
                   NtrpSlider_signup(),
                   FormFieldLabel('생년월일'),
-                  const SizedBox(height: 5),
+                  const SizedBox(height: 10),
                   GestureDetector(
                     onTap: () => _selectDate(context),
                     child: AbsorbPointer(
                       child: BirthdateFormField_signup(),
                     ),
                   ),
-                  const SizedBox(height: 70),
-                  if (_isLoading) // Show loading indicator
+                  const SizedBox(height: 50),
+                  if (_isLoading)
                     CircularProgressIndicator(),
-                  if (!_isLoading) // Show button when not loading
+                  if (!_isLoading)
                     RegisterButton_signup(),
                 ],
               ),
@@ -155,14 +163,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
           padding: EdgeInsets.only(left: 10),
           child: Label(label),
         ),
-        if (label == 'NTRP') // 조건문 추가
+        if (label == 'NTRP')
           ...[
-            SizedBox(width: 8), // 아이콘과 텍스트 사이의 간격
+            SizedBox(width: 8),
             Text(
               'NTRP가 무엇인가요?',
               style: TextStyle(
                 color: Colors.grey,
-                fontSize: 10,
+                fontSize: 14,
                 fontFamily: 'Pretendard',
                 fontWeight: FontWeight.bold,
               ),
@@ -174,14 +182,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
               'NTRP(National Tennis Rating Program)는 테니스 실력을 평가하는 척도입니다. 1.0부터 7.0까지 있으며, 숫자가 높을수록 실력이 좋습니다.',
             ),
           ],
-        if (label == '비밀번호') // 조건문 추가
+        if (label == '비밀번호')
           ...[
-            SizedBox(width: 8), // 아이콘과 텍스트 사이의 간격
+            SizedBox(width: 8),
             Text(
               '비밀번호 형식이 무엇인가요?',
               style: TextStyle(
                 color: Colors.grey,
-                fontSize: 10,
+                fontSize: 14,
                 fontFamily: 'Pretendard',
                 fontWeight: FontWeight.bold,
               ),
@@ -202,7 +210,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
       label,
       style: TextStyle(
         color: Colors.black,
-        fontSize: 12,
+        fontSize: 14,
         fontFamily: 'Pretendard',
         fontWeight: FontWeight.w600,
         height: 1.0,
@@ -213,8 +221,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   SizedBox FullWidthThinBox() {
     return SizedBox(
-        width: double.infinity, // 화면 너비를 꽉 채웁니다.
-        height: 5, // 얇은 높이 (원하는 값으로 조절 가능)
+        width: double.infinity,
+        height: 5,
         child: Container(
           color: const Color(0xFFEDEDED),
         ));
@@ -225,17 +233,17 @@ class _SignUpScreenState extends State<SignUpScreen> {
         child: Center(
             child: ElevatedButton(
               style: ElevatedButton.styleFrom(
-                  minimumSize: Size(315, 30),
+                  minimumSize: Size(315, 40),
                   backgroundColor: Color(0xFF464EFF),
                   shape: RoundedRectangleBorder(
                       side: BorderSide(width: 1, color: Color(0xFF464EFF)),
                       borderRadius: BorderRadius.circular(20))),
-              onPressed: _isLoading ? null : _submitForm, // Disable button when loading
+              onPressed: _isLoading ? null : _submitForm,
               child: Text('가입하기',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     color: Colors.white,
-                    fontSize: 12,
+                    fontSize: 14,
                     fontFamily: 'Pretendard',
                     fontWeight: FontWeight.w700,
                     height: 0,
@@ -256,11 +264,15 @@ class _SignUpScreenState extends State<SignUpScreen> {
           .map<DropdownMenuItem<String>>((String value) {
         return DropdownMenuItem<String>(
           value: value,
-          child: Text(value),
+          child: Text(
+            value,
+            style: TextStyle(fontSize: 14),
+          ),
         );
       }).toList(),
       decoration: InputDecoration(
         labelText: 'Gender',
+        labelStyle: TextStyle(fontSize: 14),
       ),
     );
   }
@@ -268,8 +280,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   Container BirthdateFormField_signup() {
     return Container(
       width: 340,
-      height: 48,
-      padding: EdgeInsets.symmetric(vertical: 8.0), // Adjust padding
+      height: 50,
       decoration: ShapeDecoration(
         shape: RoundedRectangleBorder(
           side: BorderSide(width: 1, color: Color(0xFFD3D3D3)),
@@ -281,7 +292,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
           "${selectedDate.year}-${selectedDate.month.toString().padLeft(2, '0')}-${selectedDate.day.toString().padLeft(2, '0')}",
           style: TextStyle(
             color: Color(0xFF919191),
-            fontSize: 16,
+            fontSize: 14,
             fontFamily: 'Pretendard',
             fontWeight: FontWeight.w400,
             height: 1.0,
@@ -311,230 +322,249 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   Container NameFormField_signup() {
     return Container(
-      width: 160,
-      height: 48,
-      padding: EdgeInsets.symmetric(vertical: 8.0), // Adjust padding
-      decoration: ShapeDecoration(
-        shape: RoundedRectangleBorder(
-          side: BorderSide(width: 1, color: Color(0xFFD3D3D3)),
-          borderRadius: BorderRadius.circular(5),
+        width: 160,
+        height: 50,
+        decoration: ShapeDecoration(
+          shape: RoundedRectangleBorder(
+            side: BorderSide(width: 1, color: Color(0xFFD3D3D3)),
+            borderRadius: BorderRadius.circular(5),
+          ),
         ),
-      ),
-      child: TextFormField(
-        style: TextStyle(
-          color: Color(0xFF919191),
-          fontSize: 16,
-          fontFamily: 'Pretendard',
-          fontWeight: FontWeight.w400,
-          height: 1.0,
-          letterSpacing: -0.08,
-        ),
-        textAlignVertical: TextAlignVertical.center,
-        // 포커스를 받았을 때 상태 업데이트
-        onTap: () {
-          setState(() {
-            _isFocused = true;
-          });
-        },
-        // 포커스를 잃었을 때 상태 업데이트
-        onFieldSubmitted: (value) {
-          setState(() {
-            _isFocused = false;
-          });
-        },
-        onSaved: (value) => name = value!,
-        decoration: InputDecoration(
-          hintText: '이름을 입력해주세요',
-          enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(5),
-              borderSide: BorderSide(color: Colors.grey)),
-          focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(5),
-              borderSide: BorderSide(color: Color(0xFF464EFF))),
-          errorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(5),
-              borderSide: BorderSide(color: Colors.red)),
-          focusedErrorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(5),
-              borderSide: BorderSide(color: Colors.red)),
-        ),
-        validator: (value) => value!.isEmpty ? '이름 형식이 올바르지 않습니다' : null,
-      ),
-    );
+        child: TextFormField(
+          style: TextStyle(
+            color: Color(0xFF919191),
+            fontSize: 14,
+            fontFamily: 'Pretendard',
+            fontWeight: FontWeight.w400,
+            height: 1.0,
+            letterSpacing: -0.08,
+          ),
+          textAlignVertical: TextAlignVertical.center,
+          onTap: () {
+            setState(() {});
+          },
+          onFieldSubmitted: (value) {
+            setState(() {});
+          },
+          onSaved: (value) => name = value!,
+          decoration: InputDecoration(
+              hintText: '이름을 입력해주세요',
+              hintStyle: TextStyle(fontSize: 14),
+              enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(5),
+                  borderSide: BorderSide(color: Colors.grey)),
+              focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(5),
+                  borderSide: BorderSide(color: Color(0xFF464EFF))),
+              errorBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(5),
+                  borderSide: BorderSide(color: Colors.red)),
+              focusedErrorBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(5),
+                  borderSide: BorderSide(color: Colors.red))),
+          validator: (value) {
+            if (value!.isEmpty) {
+              setState(() {
+                _nameErrorMessage = '이름 형식이 올바르지 않습니다';
+              });
+              return '';
+            }
+            setState(() {
+              _nameErrorMessage = null;
+            });
+            return null;
+          },
+        ));
   }
 
   Container PasswordFormField_signup() {
     return Container(
-      width: 340,
-      height: 48,
-      padding: EdgeInsets.symmetric(vertical: 8.0), // Adjust padding
-      decoration: ShapeDecoration(
-        shape: RoundedRectangleBorder(
-          side: BorderSide(width: 1, color: Color(0xFFD3D3D3)),
-          borderRadius: BorderRadius.circular(5),
+        width: 340,
+        height: 50,
+        decoration: ShapeDecoration(
+          shape: RoundedRectangleBorder(
+            side: BorderSide(width: 1, color: Color(0xFFD3D3D3)),
+            borderRadius: BorderRadius.circular(5),
+          ),
         ),
-      ),
-      child: TextFormField(
-        style: TextStyle(
-          color: Color(0xFF919191),
-          fontSize: 16,
-          fontFamily: 'Pretendard',
-          fontWeight: FontWeight.w400,
-          height: 1.0,
-          letterSpacing: -0.08,
-        ),
-        textAlignVertical: TextAlignVertical.center,
-        // 포커스를 받았을 때 상태 업데이트
-        onTap: () {
-          setState(() {
-            _isFocused = true;
-          });
-        },
-        // 포커스를 잃었을 때 상태 업데이트
-        onFieldSubmitted: (value) {
-          setState(() {
-            _isFocused = false;
-          });
-        },
-        onChanged: (value) {
-          setState(() {
-            password = value;
-          });
-        },
-        onSaved: (value) => password = value!,
-        decoration: InputDecoration(
-          hintText: '비밀번호를 입력해주세요',
-          enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(5),
-              borderSide: BorderSide(color: Colors.grey)),
-          focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(5),
-              borderSide: BorderSide(color: Color(0xFF464EFF))),
-          errorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(5),
-              borderSide: BorderSide(color: Colors.red)),
-          focusedErrorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(5),
-              borderSide: BorderSide(color: Colors.red)),
-        ),
-        obscureText: true,
-        validator: (value) {
-          if (value == null || value.isEmpty) {
-            return '비밀번호 형식이 올바르지 않습니다.';
-          }
-          final regex = RegExp(
-              r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@#$%^&+=])[A-Za-z\d@#$%^&+=]{8,}$');
-          if (!regex.hasMatch(value)) {
-            return '비밀번호 형식이 올바르지 않습니다.';
-          }
-          return null;
-        },
-      ),
-    );
+        child: TextFormField(
+          style: TextStyle(
+            color: Color(0xFF919191),
+            fontSize: 14,
+            fontFamily: 'Pretendard',
+            fontWeight: FontWeight.w400,
+            height: 1.0,
+            letterSpacing: -0.08,
+          ),
+          textAlignVertical: TextAlignVertical.center,
+          onTap: () {
+            setState(() {});
+          },
+          onFieldSubmitted: (value) {
+            setState(() {});
+          },
+          onChanged: (value) {
+            setState(() {
+              password = value;
+            });
+          },
+          onSaved: (value) => password = value!,
+          decoration: InputDecoration(
+              hintText: '비밀번호를 입력해주세요',
+              hintStyle: TextStyle(fontSize: 14),
+              enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(5),
+                  borderSide: BorderSide(color: Colors.grey)),
+              focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(5),
+                  borderSide: BorderSide(color: Color(0xFF464EFF))),
+              errorBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(5),
+                  borderSide: BorderSide(color: Colors.red)),
+              focusedErrorBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(5),
+                  borderSide: BorderSide(color: Colors.red))),
+          obscureText: true,
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              setState(() {
+                _passwordErrorMessage = '비밀번호 형식이 올바르지 않습니다.';
+              });
+              return '';
+            }
+            final regex = RegExp(
+                r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@#$%^&+=])[A-Za-z\d@#$%^&+=]{8,}$');
+            if (!regex.hasMatch(value)) {
+              setState(() {
+                _passwordErrorMessage = '비밀번호 형식이 올바르지 않습니다.';
+              });
+              return '';
+            }
+            setState(() {
+              _passwordErrorMessage = null;
+            });
+            return null;
+          },
+        ));
   }
 
   Container ConfirmPasswordFormField_signup() {
     return Container(
-      width: 340,
-      height: 48,
-      padding: EdgeInsets.symmetric(vertical: 8.0), // Adjust padding
-      decoration: ShapeDecoration(
-        shape: RoundedRectangleBorder(
-          side: BorderSide(width: 1, color: Color(0xFFD3D3D3)),
-          borderRadius: BorderRadius.circular(5),
+        width: 340,
+        height: 50,
+        decoration: ShapeDecoration(
+          shape: RoundedRectangleBorder(
+            side: BorderSide(width: 1, color: Color(0xFFD3D3D3)),
+            borderRadius: BorderRadius.circular(5),
+          ),
         ),
-      ),
-      child: TextFormField(
-        style: TextStyle(
-          color: Color(0xFF919191),
-          fontSize: 16,
-          fontFamily: 'Pretendard',
-          fontWeight: FontWeight.w400,
-          height: 1.0,
-          letterSpacing: -0.08,
-        ),
-        textAlignVertical: TextAlignVertical.center,
-        // 포커스를 받았을 때 상태 업데이트
-        onTap: () {
-          setState(() {
-            _isFocused = true;
-          });
-        },
-        // 포커스를 잃었을 때 상태 업데이트
-        onFieldSubmitted: (value) {
-          setState(() {
-            _isFocused = false;
-          });
-        },
-        onChanged: (value) {
-          setState(() {
-            confirmPassword = value;
-          });
-        },
-        onSaved: (value) => confirmPassword = value!,
-        decoration: InputDecoration(
-          hintText: '비밀번호를 다시 입력해주세요',
-          enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(5),
-              borderSide: BorderSide(color: Colors.grey)),
-          focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(5),
-              borderSide: BorderSide(color: Color(0xFF464EFF))),
-          errorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(5),
-              borderSide: BorderSide(color: Colors.red)),
-          focusedErrorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(5),
-              borderSide: BorderSide(color: Colors.red)),
-        ),
-        obscureText: true,
-        validator: (value) {
-          if (confirmPassword == null || confirmPassword.isEmpty) {
-            return '비밀번호를 다시 입력해주세요.';
-          }
-          if (password != confirmPassword) {
-            return '비밀번호가 다릅니다. 다시 입력해주세요.';
-          }
-          return null;
-        },
-      ),
-    );
+        child: TextFormField(
+          style: TextStyle(
+            color: Color(0xFF919191),
+            fontSize: 14,
+            fontFamily: 'Pretendard',
+            fontWeight: FontWeight.w400,
+            height: 1.0,
+            letterSpacing: -0.08,
+          ),
+          textAlignVertical: TextAlignVertical.center,
+          onTap: () {
+            setState(() {});
+          },
+          onFieldSubmitted: (value) {
+            setState(() {});
+          },
+          onChanged: (value) {
+            setState(() {
+              confirmPassword = value;
+            });
+          },
+          onSaved: (value) => confirmPassword = value!,
+          decoration: InputDecoration(
+              hintText: '비밀번호를 다시 입력해주세요',
+              hintStyle: TextStyle(fontSize: 14),
+              enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(5),
+                  borderSide: BorderSide(color: Colors.grey)),
+              focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(5),
+                  borderSide: BorderSide(color: Color(0xFF464EFF))),
+              errorBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(5),
+                  borderSide: BorderSide(color: Colors.red)),
+              focusedErrorBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(5),
+                  borderSide: BorderSide(color: Colors.red))),
+          obscureText: true,
+          validator: (value) {
+            if (confirmPassword == null || confirmPassword.isEmpty) {
+              setState(() {
+                _confirmPasswordErrorMessage = '비밀번호를 다시 입력해주세요.';
+              });
+              return '';
+            }
+            if (password != confirmPassword) {
+              setState(() {
+                _confirmPasswordErrorMessage = '비밀번호가 다릅니다. 다시 입력해주세요.';
+              });
+              return '';
+            }
+            setState(() {
+              _confirmPasswordErrorMessage = null;
+            });
+            return null;
+          },
+        ));
   }
 
   Container EmailFormField_signup() {
     return Container(
       width: 340,
-      height: 48,
-      padding: EdgeInsets.symmetric(vertical: 8.0), // Adjust padding
+      height: 50,
       child: TextFormField(
         style: TextStyle(
           color: Color(0xFF919191),
-          fontSize: 16,
+          fontSize: 14,
           fontFamily: 'Pretendard',
           fontWeight: FontWeight.w400,
           height: 1.0,
           letterSpacing: -0.08,
         ),
         textAlignVertical: TextAlignVertical.center,
+        onTap: () {
+          setState(() {});
+        },
+        onFieldSubmitted: (value) {
+          setState(() {});
+        },
         onSaved: (value) => email = value!,
         decoration: InputDecoration(
-          hintText: '이메일을 입력해주세요',
-          enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(5),
-              borderSide: BorderSide(color: Colors.grey)),
-          focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(5),
-              borderSide: BorderSide(color: Color(0xFF464EFF))),
-          errorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(5),
-              borderSide: BorderSide(color: Colors.red)),
-          focusedErrorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(5),
-              borderSide: BorderSide(color: Colors.red)),
-        ),
-        validator: (value) => value!.isEmpty || !value.contains('@')
-            ? '이메일 형식이 올바르지 않습니다.'
-            : null,
+            hintText: '이메일을 입력해주세요',
+            hintStyle: TextStyle(fontSize: 14),
+            enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(5),
+                borderSide: BorderSide(color: Colors.grey)),
+            focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(5),
+                borderSide: BorderSide(color: Color(0xFF464EFF))),
+            errorBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(5),
+                borderSide: BorderSide(color: Colors.red)),
+            focusedErrorBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(5),
+                borderSide: BorderSide(color: Colors.red))),
+        validator: (value) {
+          if (value!.isEmpty || !value.contains('@')) {
+            setState(() {
+              _emailErrorMessage = '이메일 형식이 올바르지 않습니다.';
+            });
+            return '';
+          }
+          setState(() {
+            _emailErrorMessage = null;
+          });
+          return null;
+        },
       ),
     );
   }
@@ -561,6 +591,23 @@ class _SignUpScreenState extends State<SignUpScreen> {
       ),
     );
   }
+
+  Widget ErrorMessage(String? message) {
+    if (message == null) {
+      return SizedBox.shrink();
+    }
+    return Container(
+      alignment: Alignment.centerLeft,
+      padding: EdgeInsets.only(left: 10, top: 5),
+      child: Text(
+        message,
+        style: TextStyle(
+          color: Colors.red,
+          fontSize: 12,
+        ),
+      ),
+    );
+  }
 }
 
 class HelpIcon extends StatelessWidget {
@@ -570,7 +617,7 @@ class HelpIcon extends StatelessWidget {
   const HelpIcon({
     Key? key,
     required this.helpText,
-    required this.dialogTitle, // 추가된 dialogTitle 매개변수
+    required this.dialogTitle,
   }) : super(key: key);
 
   @override
