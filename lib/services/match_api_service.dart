@@ -4,7 +4,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tennisfunapp/models/game.dart';
 
 class MatchApiService {
-  //final String _baseUrl = "http://localhost:8080";
   String _baseUrl = "https://tennisfun-rrrlqvarua-du.a.run.app";
 
   Future<http.Response> createMatchRequest(
@@ -185,6 +184,42 @@ class MatchApiService {
       }
     } else {
       throw Exception('Failed to load match history');
+    }
+  }
+
+  Future<void> updateScores(
+      String gameId, int userScore, int opponentScore) async {
+    final url = Uri.parse('$_baseUrl/api/game/score');
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? sessionCookie = prefs.getString('sessionCookie');
+
+    var headers = <String, String>{
+      'Content-Type': 'application/json',
+    };
+
+    if (sessionCookie != null) {
+      headers['Cookie'] = sessionCookie;
+    }
+
+    final response = await http.patch(
+      url,
+      headers: headers,
+      body: json.encode({
+        'gameId': gameId,
+        'scoreDetailDto': {
+          'userScore': userScore,
+          'opponentScore': opponentScore,
+        }
+      }),
+    );
+
+    print("Request URL: $_baseUrl/api/game/score");
+    print("Response: ${response.statusCode}");
+    print("Response: ${response.body}");
+
+    if (response.statusCode != 200) {
+      throw Exception('Failed to update scores');
     }
   }
 }

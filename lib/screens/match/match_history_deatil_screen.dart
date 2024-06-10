@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:tennisfunapp/screens/match/feedback_screen.dart';
+import 'package:tennisfunapp/screens/match/score_edit_screen.dart';
 import 'package:tennisfunapp/services/match_api_service.dart';
-import 'package:tennisfunapp/services/payment_api_service.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class MatchHistoryDetailScreen extends StatefulWidget {
   @override
@@ -13,7 +11,6 @@ class MatchHistoryDetailScreen extends StatefulWidget {
 
 class _MatchHistoryDetailScreenState extends State<MatchHistoryDetailScreen> {
   final MatchApiService matchApiService = MatchApiService();
-  final PaymentApiService paymentApiService = PaymentApiService();
   List<dynamic>? matches;
   bool isLoading = true;
 
@@ -24,6 +21,10 @@ class _MatchHistoryDetailScreenState extends State<MatchHistoryDetailScreen> {
   }
 
   void loadMatchHistory() async {
+    setState(() {
+      isLoading = true;
+    });
+
     try {
       var fetchedMatches = await matchApiService.fetchMatchHistory();
       setState(() {
@@ -109,10 +110,10 @@ class _MatchHistoryDetailScreenState extends State<MatchHistoryDetailScreen> {
                         Text('성별: ${_translateGender(player['gender'])}',
                             style: TextStyle(fontWeight: FontWeight.bold)),
                         Text(
-                            '입력한 플레이어의 점수: ${score['scoreDetailDto']['userScore']}',
+                            '입력한 플레이어의 점수: ${score?['scoreDetailDto']?['userScore'] ?? 'N/A'}',
                             style: TextStyle(fontWeight: FontWeight.bold)),
                         Text(
-                            '입력한 상대방의 점수: ${opponentScore['scoreDetailDto']['opponentScore']}',
+                            '입력한 상대방의 점수: ${score?['scoreDetailDto']?['opponentScore'] ?? 'N/A'}',
                             style: TextStyle(fontWeight: FontWeight.bold)),
                       ],
                     ),
@@ -128,6 +129,14 @@ class _MatchHistoryDetailScreenState extends State<MatchHistoryDetailScreen> {
 
   Widget _buildMatchCard(dynamic match, Color highlightColor) {
     final game = match['gameDetailsDto'];
+    final scores = match['scores'] as List<dynamic>;
+    final playerScore = scores.firstWhere(
+        (score) => score['userId'] != match['opponentId'],
+        orElse: () => null);
+    final opponentScore = scores.firstWhere(
+        (score) => score['userId'] == match['opponentId'],
+        orElse: () => null);
+
     return Card(
       elevation: 4,
       shape: RoundedRectangleBorder(
@@ -169,7 +178,7 @@ class _MatchHistoryDetailScreenState extends State<MatchHistoryDetailScreen> {
             SizedBox(height: 24),
             _buildPlayerDetails(
               game['players'] as List<dynamic>? ?? [],
-              match['scores'] as List<dynamic>? ?? [],
+              scores,
               match['opponentId'],
               highlightColor,
             ),
@@ -178,16 +187,27 @@ class _MatchHistoryDetailScreenState extends State<MatchHistoryDetailScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 ElevatedButton(
-                  onPressed:
-                      game['state'] != 'PREGAME' && game['state'] != 'POSTGAME'
-                          ? () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => FeedbackScreen()),
-                              );
-                            }
-                          : null,
+                  onPressed: game['state'] != 'PREGAME' &&
+                          game['state'] != 'POSTGAME'
+                      ? () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ScoreEditScreen(
+                                gameId: game['gameId'],
+                                userScore: playerScore?['scoreDetailDto']
+                                        ?['userScore'] ??
+                                    0,
+                                opponentScore: playerScore?['scoreDetailDto']
+                                        ?['opponentScore'] ??
+                                    0,
+                              ),
+                            ),
+                          ).then((_) {
+                            loadMatchHistory();
+                          });
+                        }
+                      : null,
                   style: ElevatedButton.styleFrom(
                       backgroundColor: game['state'] != 'PREGAME' &&
                               game['state'] != 'POSTGAME'

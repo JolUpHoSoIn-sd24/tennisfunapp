@@ -22,9 +22,12 @@ class SignUpDoneScreen extends StatelessWidget {
             ),
             SizedBox(height: 40),
             ElevatedButton(
-              onPressed: () => {
-                Navigator.pop(context),
-                Navigator.pop(context),
+              onPressed: () {
+                Navigator.pushNamedAndRemoveUntil(
+                  context,
+                  '/login',
+                      (Route<dynamic> route) => false,
+                );
               },
               child: Text('Back to Login'),
             ),

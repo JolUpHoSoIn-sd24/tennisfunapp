@@ -182,9 +182,31 @@ class _MatchInfoScreenState extends State<MatchInfoScreen> {
               );
             }
             final screenWidth = MediaQuery.of(context).size.width;
-            return Container(
-              width: screenWidth - 40,
-              child: cards[index],
+            return Stack(
+              children: [
+                Container(
+                  width: screenWidth - 40,
+                  child: cards[index],
+                ),
+                Positioned(
+                  top: 10,
+                  left: 10,
+                  child: Icon(
+                    Icons.thumb_down,
+                    color: Colors.red,
+                    size: 50,
+                  ),
+                ),
+                Positioned(
+                  top: 10,
+                  right: 10,
+                  child: Icon(
+                    Icons.thumb_up,
+                    color: Colors.green,
+                    size: 50,
+                  ),
+                ),
+              ],
             );
           },
           onSwipe: (prevIndex, index, direction) async {

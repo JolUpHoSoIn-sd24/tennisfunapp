@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:tennisfunapp/screens/match/match_history_screen.dart';
 import 'package:tennisfunapp/screens/match/match_info_screen.dart';
 import 'package:tennisfunapp/screens/referee/ai_referee_streaming.dart';
+import 'package:tennisfunapp/screens/referee/streaming_test.dart';
 import 'package:tennisfunapp/screens/test/test1.dart';
 import 'package:tennisfunapp/screens/test/test2.dart';
 
@@ -15,8 +16,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
   static final List<Widget> _widgetOptions = <Widget>[
     MatchInfoScreen(),
-    AiRefereeStreaming(),
+    // AiRefereeStreaming(),
+    StreamingTest(),
     MatchHistoryScreen(),
+    TestScreen1(),
+    TestScreen2(),
   ];
 
   void _onItemTapped(int index) {
