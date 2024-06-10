@@ -20,34 +20,11 @@ class BusinessService {
       if (jsonResponse['isSuccess'] == true) {
         return jsonResponse['result'];
       } else {
-        return null; // null 반환
+        throw Exception('Failed to load business info: ${jsonResponse['message']}');
       }
     } else {
-      throw Exception('Failed to load business info');
-    }
-  }
-
-  Future<Map<String, dynamic>?> fetchCourtReservations() async {
-    var url = Uri.parse('$_baseUrl/api/business/courts/reservations');
-    var response = await http.get(
-      url,
-      headers: {
-        'Content-Type': 'application/json; charset=UTF-8',
-        'Cookie': await _getSessionCookie(),
-      },
-    );
-
-    if (response.statusCode == 200) {
-      Map<String, dynamic> jsonResponse = jsonDecode(utf8.decode(response.bodyBytes));
-      if (jsonResponse['isSuccess'] == true && jsonResponse['result'] is List) {
-        return {
-          'result': jsonResponse['result']
-        };
-      } else {
-        return null; // null 반환
-      }
-    } else {
-      throw Exception('Failed to load court reservations');
+      String responseBody = utf8.decode(response.bodyBytes);
+      throw Exception('Failed to load business info: $responseBody');
     }
   }
 
@@ -66,10 +43,37 @@ class BusinessService {
       if (jsonResponse['isSuccess'] == true) {
         return jsonResponse['result'];
       } else {
-        throw Exception('Failed to load court settlement info');
+        throw Exception('Failed to load court settlement info: ${jsonResponse['message']}');
       }
     } else {
-      throw Exception('Failed to load court settlement info');
+      String responseBody = utf8.decode(response.bodyBytes);
+      throw Exception('Failed to load court settlement info: $responseBody');
+    }
+  }
+
+  Future<Map<String, dynamic>> registerBusiness(Map<String, dynamic> requestBody) async {
+    var url = Uri.parse('$_baseUrl/api/business/register');
+    var response = await http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(requestBody),
+    );
+
+    String responseBody = utf8.decode(response.bodyBytes);
+    print('Response status: ${response.statusCode}');
+    print('Response body: $responseBody');
+
+    if (response.statusCode == 201) {
+      Map<String, dynamic> jsonResponse = jsonDecode(responseBody);
+      if (jsonResponse['isSuccess'] == true) {
+        return jsonResponse;
+      } else {
+        throw Exception('Failed to register business: ${jsonResponse['message']}');
+      }
+    } else {
+      throw Exception('Failed to register business: $responseBody');
     }
   }
 

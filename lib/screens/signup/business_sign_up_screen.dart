@@ -18,6 +18,8 @@ class _BusinessSignUpScreenState extends State<BusinessSignUpScreen> {
   final TextEditingController _bankNameController = TextEditingController();
   final TextEditingController _accountNumberController = TextEditingController();
   final BusinessService _businessService = BusinessService();
+  double? _latitude;
+  double? _longitude;
 
   @override
   void dispose() {
@@ -80,8 +82,8 @@ class _BusinessSignUpScreenState extends State<BusinessSignUpScreen> {
         "documentUrls": ["https://example.com/document1.pdf", "https://example.com/document2.pdf"],
         "shopName": "MyShop", // 이 부분은 실제로 입력 받거나 다른 방법으로 처리
         "location": {
-          "x": 127.07134,
-          "y": 37.251521
+          "x": _latitude,
+          "y": _longitude
         }
       };
 
@@ -101,6 +103,12 @@ class _BusinessSignUpScreenState extends State<BusinessSignUpScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final arguments = ModalRoute.of(context)?.settings.arguments as Map?;
+    if (arguments != null) {
+      _latitude = arguments['latitude'];
+      _longitude = arguments['longitude'];
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: Text('테니스장 사업자 회원가입'),
@@ -199,7 +207,7 @@ class _BusinessSignUpScreenState extends State<BusinessSignUpScreen> {
                   ),
                   ElevatedButton(
                     onPressed: () {
-                      Navigator.pushReplacementNamed(context, '/registerCourtAddress');
+                      Navigator.pushNamed(context, '/registerCourtAddress');
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Color(0xFF464EFF), // 버튼 색상
