@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_card_swiper/flutter_card_swiper.dart';
 import 'package:tennisfunapp/models/candidate_model.dart';
-import 'package:tennisfunapp/models/game.dart'; // Import Game class
+import 'package:tennisfunapp/models/game.dart';
 import 'package:tennisfunapp/components/candidate_card.dart';
 import 'package:tennisfunapp/components/prompt_card.dart';
 import 'package:tennisfunapp/services/match_api_service.dart';
@@ -28,8 +28,8 @@ class _MatchInfoScreenState extends State<MatchInfoScreen> {
   ];
 
   final CandidateModel ongoingGamePrompt = CandidateModel(
-    name: "현재 진행중인 게임이 있습니다.",
-    skillLevel: "먼저 게임을 마무리해주세요.",
+    name: "게임이 생성되었습니다.",
+    skillLevel: "현재 게임을 마무리한 후 새로운 게임을 시작해보세요!",
     isPrompt: true,
   );
 
@@ -173,6 +173,14 @@ class _MatchInfoScreenState extends State<MatchInfoScreen> {
           controller: controller,
           cardsCount: cards.length,
           cardBuilder: (context, index, _, __) {
+            if (index >= cards.length) {
+              // Display the ongoing game prompt card if index is out of bounds
+              return PromptCard(
+                candidate: ongoingGamePrompt,
+                onMatchRequest: null,
+                icon: Icons.warning,
+              );
+            }
             final screenWidth = MediaQuery.of(context).size.width;
             return Container(
               width: screenWidth - 40,
@@ -181,7 +189,9 @@ class _MatchInfoScreenState extends State<MatchInfoScreen> {
           },
           onSwipe: (prevIndex, index, direction) async {
             debugPrint('Card $index was swiped $direction');
-            if (cards[index!] is CandidateCard) {
+            if (index != null &&
+                index < cards.length &&
+                cards[index] is CandidateCard) {
               String? id = (cards[index] as CandidateCard).candidate.id;
               if (id != null) {
                 String feedback =
