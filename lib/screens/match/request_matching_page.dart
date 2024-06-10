@@ -25,10 +25,9 @@ class _RequestMatchingPageState extends State<RequestMatchingPage>
   RangeValues runningTimeRange = const RangeValues(30, 120);
   double maxDistance = 5.0;
   DateTime? startDate = DateTime.now();
-  TimeOfDay? startTime = TimeOfDay.now();
+  TimeOfDay? startTime = TimeOfDay(hour: TimeOfDay.now().hour, minute: 0);
   DateTime? endDate = DateTime.now();
-  TimeOfDay? endTime =
-      TimeOfDay.now().replacing(minute: TimeOfDay.now().minute + 1);
+  TimeOfDay? endTime = TimeOfDay(hour: TimeOfDay.now().hour, minute: 30);
   String money = '';
   String message = '';
   TextEditingController userIdController = TextEditingController();
@@ -60,6 +59,13 @@ class _RequestMatchingPageState extends State<RequestMatchingPage>
   }
 
   void _validateAndSetStartTime(TimeOfDay picked) {
+    if (picked.minute % 30 != 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("시간은 00분 또는 30분 단위로만 설정 가능합니다.")),
+      );
+      return;
+    }
+
     if (endDate != null && endTime != null) {
       DateTime startDateTime = DateTime(
         startDate!.year,
@@ -105,6 +111,13 @@ class _RequestMatchingPageState extends State<RequestMatchingPage>
   }
 
   void _validateAndSetEndTime(TimeOfDay picked) {
+    if (picked.minute % 30 != 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("시간은 00분 또는 30분 단위로만 설정 가능합니다.")),
+      );
+      return;
+    }
+
     if (startDate != null && startTime != null) {
       DateTime startDateTime = DateTime(
         startDate!.year,
@@ -135,6 +148,20 @@ class _RequestMatchingPageState extends State<RequestMatchingPage>
         endTime = picked;
       });
     }
+  }
+
+  Future<TimeOfDay?> _showCustomTimePicker(BuildContext context) async {
+    final now = TimeOfDay.now();
+    return showTimePicker(
+      context: context,
+      initialTime: TimeOfDay(hour: now.hour, minute: now.minute >= 30 ? 30 : 0),
+      builder: (context, child) {
+        return MediaQuery(
+          data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),
+          child: child!,
+        );
+      },
+    );
   }
 
   @override
@@ -315,10 +342,7 @@ class _RequestMatchingPageState extends State<RequestMatchingPage>
           ),
           TextButton(
             onPressed: () async {
-              final TimeOfDay? picked = await showTimePicker(
-                context: context,
-                initialTime: endTime ?? TimeOfDay.now(),
-              );
+              final TimeOfDay? picked = await _showCustomTimePicker(context);
               if (picked != null && picked != endTime) {
                 _validateAndSetEndTime(picked);
               }
@@ -567,10 +591,7 @@ class _RequestMatchingPageState extends State<RequestMatchingPage>
           ),
           TextButton(
             onPressed: () async {
-              final TimeOfDay? picked = await showTimePicker(
-                context: context,
-                initialTime: endTime ?? TimeOfDay.now(),
-              );
+              final TimeOfDay? picked = await _showCustomTimePicker(context);
               if (picked != null && picked != endTime) {
                 _validateAndSetEndTime(picked);
               }
@@ -638,10 +659,7 @@ class _RequestMatchingPageState extends State<RequestMatchingPage>
           ),
           TextButton(
             onPressed: () async {
-              final TimeOfDay? picked = await showTimePicker(
-                context: context,
-                initialTime: startTime ?? TimeOfDay.now(),
-              );
+              final TimeOfDay? picked = await _showCustomTimePicker(context);
               if (picked != null && picked != startTime) {
                 _validateAndSetStartTime(picked);
               }
@@ -667,10 +685,7 @@ class _RequestMatchingPageState extends State<RequestMatchingPage>
           Text('~'),
           TextButton(
             onPressed: () async {
-              final TimeOfDay? picked = await showTimePicker(
-                context: context,
-                initialTime: endTime ?? TimeOfDay.now(),
-              );
+              final TimeOfDay? picked = await _showCustomTimePicker(context);
               if (picked != null && picked != endTime) {
                 _validateAndSetEndTime(picked);
               }
