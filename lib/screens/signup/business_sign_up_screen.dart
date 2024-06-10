@@ -82,8 +82,8 @@ class _BusinessSignUpScreenState extends State<BusinessSignUpScreen> {
         "documentUrls": ["https://example.com/document1.pdf", "https://example.com/document2.pdf"],
         "shopName": "MyShop", // 이 부분은 실제로 입력 받거나 다른 방법으로 처리
         "location": {
-          "x": _latitude,
-          "y": _longitude
+          "x": _longitude,
+          "y": _latitude
         }
       };
 
