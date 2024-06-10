@@ -156,8 +156,8 @@ class _StreamingTestState extends State<StreamingTest> {
       'audio': false,
       'video': {
         'mandatory': {
-          'width': '1280',
-          'height': '720',
+          'width': '640',
+          'height': '360',
           'frameRate': '30',
         },
         // 'facingMode': 'user',
