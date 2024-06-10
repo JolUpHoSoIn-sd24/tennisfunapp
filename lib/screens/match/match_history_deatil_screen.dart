@@ -66,53 +66,56 @@ class _MatchHistoryDetailScreenState extends State<MatchHistoryDetailScreen> {
     }
   }
 
-  Widget _buildPlayerDetails(List<dynamic> players, Color highlightColor) {
+  Widget _buildPlayerDetails(List<dynamic> players, List<dynamic> scores,
+      String opponentId, Color highlightColor) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text('플레이어 정보',
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
         ...players.map((player) {
-          bool hasPaid = player['feedback'] ?? false;
+          final score = scores.firstWhere(
+              (score) => score['userId'] == player['userId'],
+              orElse: () => null);
+          final opponentScore = scores.firstWhere(
+              (score) => score['userId'] == opponentId,
+              orElse: () => null);
+
           return Card(
             margin: EdgeInsets.symmetric(vertical: 8),
             elevation: 4,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(10),
             ),
-            child: ListTile(
-              leading: CircleAvatar(
-                child: Text(player['name'][0]),
-                backgroundColor: highlightColor,
-              ),
-              title: Text(player['name']),
-              subtitle: Column(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('NTRP: ${player['ntrp']}'),
-                  Text('나이: ${player['age']}'),
-                  Text('성별: ${_translateGender(player['gender'])}'),
-                ],
-              ),
-              trailing: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        hasPaid ? Icons.check_circle : Icons.cancel,
-                        color: hasPaid ? Colors.green : Colors.red,
-                      ),
-                      SizedBox(width: 4),
-                      Text(
-                        hasPaid ? '피드백 완료' : '피드백 미완료',
-                        style: TextStyle(
-                          color: hasPaid ? Colors.green : Colors.red,
-                          fontSize: 12,
-                        ),
-                      ),
-                    ],
+                  ListTile(
+                    leading: CircleAvatar(
+                      child: Text(player['name'][0]),
+                      backgroundColor: highlightColor,
+                    ),
+                    title: Text(player['name'],
+                        style: TextStyle(fontWeight: FontWeight.bold)),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('NTRP: ${player['ntrp']}',
+                            style: TextStyle(fontWeight: FontWeight.bold)),
+                        Text('나이: ${player['age']}',
+                            style: TextStyle(fontWeight: FontWeight.bold)),
+                        Text('성별: ${_translateGender(player['gender'])}',
+                            style: TextStyle(fontWeight: FontWeight.bold)),
+                        Text(
+                            '입력한 플레이어의 점수: ${score['scoreDetailDto']['userScore']}',
+                            style: TextStyle(fontWeight: FontWeight.bold)),
+                        Text(
+                            '입력한 상대방의 점수: ${opponentScore['scoreDetailDto']['opponentScore']}',
+                            style: TextStyle(fontWeight: FontWeight.bold)),
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -166,6 +169,8 @@ class _MatchHistoryDetailScreenState extends State<MatchHistoryDetailScreen> {
             SizedBox(height: 24),
             _buildPlayerDetails(
               game['players'] as List<dynamic>? ?? [],
+              match['scores'] as List<dynamic>? ?? [],
+              match['opponentId'],
               highlightColor,
             ),
             SizedBox(height: 24),
