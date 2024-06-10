@@ -210,11 +210,11 @@ class _MatchInfoScreenState extends State<MatchInfoScreen> {
             );
           },
           onSwipe: (prevIndex, index, direction) async {
-            debugPrint('Card $index was swiped $direction');
-            if (index != null &&
-                index < cards.length &&
-                cards[index] is CandidateCard) {
-              String? id = (cards[index] as CandidateCard).candidate.id;
+            debugPrint('Card $prevIndex was swiped $direction');
+            if (prevIndex != null &&
+                prevIndex < cards.length &&
+                cards[prevIndex] is CandidateCard) {
+              String? id = (cards[prevIndex] as CandidateCard).candidate.id;
               if (id != null) {
                 String feedback =
                 direction == CardSwiperDirection.right ? 'LIKE' : 'DISLIKE';
