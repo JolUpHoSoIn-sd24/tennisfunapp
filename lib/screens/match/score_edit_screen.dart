@@ -20,6 +20,7 @@ class _ScoreEditScreenState extends State<ScoreEditScreen> {
   final _formKey = GlobalKey<FormState>();
   late int userScore;
   late int opponentScore;
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -32,6 +33,10 @@ class _ScoreEditScreenState extends State<ScoreEditScreen> {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
 
+      setState(() {
+        _isLoading = true;
+      });
+
       try {
         await matchApiService.updateScores(
             widget.gameId, userScore, opponentScore);
@@ -41,6 +46,10 @@ class _ScoreEditScreenState extends State<ScoreEditScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('점수 업데이트 중 오류가 발생했습니다. 다시 시도해주세요.')),
         );
+      } finally {
+        setState(() {
+          _isLoading = false;
+        });
       }
     }
   }
@@ -86,10 +95,12 @@ class _ScoreEditScreenState extends State<ScoreEditScreen> {
                 },
               ),
               SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: _submitScores,
-                child: Text('저장'),
-              ),
+              _isLoading
+                  ? CircularProgressIndicator()
+                  : ElevatedButton(
+                      onPressed: _isLoading ? null : _submitScores,
+                      child: Text('수정'),
+                    ),
             ],
           ),
         ),
