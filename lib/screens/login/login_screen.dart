@@ -32,8 +32,8 @@ class _LoginScreenState extends State<LoginScreen> {
           Navigator.pushReplacementNamed(context, '/home');
         }
       } else {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text("로그인 실패, 비밀번호를 확인해주세요.")));
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text("로그인 실패, 이메일 인증 혹은 비밀번호를 확인해주세요.")));
       }
     }
   }
