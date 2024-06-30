@@ -39,7 +39,7 @@ class _BusinessSignUpScreenState extends State<BusinessSignUpScreen> {
       context: context,
       initialDate: DateTime.now(),
       firstDate: DateTime(1900),
-      lastDate: DateTime(2101),
+      lastDate: DateTime.now(), // Restrict dates to today and before
     );
     if (picked != null) {
       setState(() {
